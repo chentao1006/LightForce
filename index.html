@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Light Force - Chrome Extension</title>
+  <style>
+    :root {
+      --primary-blue: #007bff;
+      --dark-bg: #f8f9fa;
+      --text-light: #212529;
+      --text-muted: #6c757d;
+    }
+
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--dark-bg);
+      color: var(--text-light);
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 20px 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      letter-spacing: 1px;
+    }
+
+    .logo img {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      /* Rounded icon */
+    }
+
+    nav a {
+      color: var(--text-light);
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: var(--primary-blue);
+    }
+
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 100px 20px;
+      background: radial-gradient(circle at center, rgba(0, 123, 255, 0.15) 0%, rgba(248, 249, 250, 1) 60%);
+    }
+
+    .hero h1 {
+      font-size: 4rem;
+      margin: 0 0 20px 0;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      text-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background-color: var(--primary-blue);
+      color: #ffffff;
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 30px;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 15px var(--primary-blue);
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px var(--primary-blue), 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .features {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      padding: 80px 50px;
+      background-color: #ffffff;
+      flex-wrap: wrap;
+    }
+
+    .feature-card {
+      background: #f1f3f5;
+      padding: 30px;
+      border-radius: 12px;
+      width: 300px;
+      text-align: center;
+      border-top: 4px solid var(--primary-blue);
+      transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .feature-card h3 {
+      margin-top: 0;
+      color: var(--primary-blue);
+    }
+
+    .showcase {
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .showcase img {
+      max-width: 900px;
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      color: var(--text-muted);
+    }
+
+    footer a {
+      color: var(--primary-blue);
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="icon-48.png" alt="Light Force Logo">
+      LIGHT FORCE
+    </div>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="privacy.html" target="_blank">Privacy Policy</a>
+      <!-- Replace with your actual store link once published -->
+      <a href="https://chrome.google.com/webstore" target="_blank" style="color: var(--primary-blue);">Get Extension</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>May the Light Force Drop the Darkness</h1>
+    <p>A lightweight Chrome extension that slices through dark themes, instantly forcing websites into a clean, readable
+      light mode. Protect your eyes from astigmatism halation and daytime screen glare.</p>
+    <!-- Replace with your actual store link once published -->
+    <a href="https://chrome.google.com/webstore" class="cta-button" target="_blank">Add to Chrome</a>
+  </section>
+
+  <section class="showcase">
+    <h2>See the Force in Action</h2>
+    <p style="color: var(--text-muted); margin-bottom: 30px;">Instantly toggles standard dark websites into
+      high-contrast readability.</p>
+    <img src="promo_1280x800.png" alt="Light Force Before and After Screenshot">
+  </section>
+
+  <section id="features" class="features">
+    <div class="feature-card">
+      <h3>Boost Readability</h3>
+      <p>Perfect for users with astigmatism. Say goodbye to blurry white text on black backgrounds (halation) and enjoy
+        crisp dark text on white.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Jedi-Level Precision</h3>
+      <p>Only activates on websites currently rendering in dark mode. Originally light-themed websites remain perfectly
+        untouched.</p>
+    </div>
+    <div class="feature-card">
+      <h3>One-Click Switch</h3>
+      <p>Easily ignite or disable the force using our stylized Lightsaber popup toggle. No complex menus, just instant
+        light.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 Light Force. May the Light Force be with you.</p>
+    <p><a href="privacy.html" target="_blank">Privacy Policy</a> | <a href="mailto:contact@your-email">Contact
+        Support</a></p>
+  </footer>
+
+</body>
+
+</html>
