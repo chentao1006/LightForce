@@ -17,13 +17,23 @@ Light Force is a lightweight, simple Chrome extension designed with a single, no
 *   **Instant Visual Feedback:** The extension icon features a helpful "ON" badge that lights up when the force is active, so you always know your current status.
 *   **Lightweight & Fast:** Engineered to run seamlessly in the background using Manifest V3 Service Workers. It respects your privacy and works purely locally.
 
-## 🛠️ Installation (Developer Mode)
+## 🛠️ Installation
+
+### Chrome Extension (Developer Mode)
 
 1. Clone or download this repository to your local machine.
 2. Open Google Chrome and navigate to `chrome://extensions/`.
 3. Toggle on **Developer mode** in the top right corner.
 4. Click the **Load unpacked** button and select the `light-force` directory.
 5. The extension is now installed! Don't forget to pin it for easy access.
+
+### Userscript (Tampermonkey / Violentmonkey)
+
+1. Ensure you have a userscript manager like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/) installed.
+2. Open the [light-force.user.js](./light-force.user.js) file in this repository.
+3. Your userscript manager should automatically detect it and offer to install it.
+4. If not, copy the entire content of `light-force.user.js`, open your userscript manager dashboard, create a new script, and paste the content.
+5. Save the script, and the Light Force will be with you on all websites!
 
 ## 💻 Technical Details
 
