@@ -50,7 +50,13 @@
     return null;
   }
 
-  function isDarkColor(r, g, b) { return getLuminance(r, g, b) < 0.2; }
+  function isDarkColor(r, g, b) { return getLuminance(r, g, b) < 0.12; }
+  function isTextDark(el) {
+    if (!el) return false;
+    const style = window.getComputedStyle(el);
+    const color = parseColor(style.color);
+    return color && getLuminance(color.r, color.g, color.b) < 0.25;
+  }
 
   // ─── Extract effective background from an element ─────────────────────────
   function getEffectiveBackground(el) {
@@ -74,50 +80,45 @@
   function isPageDark() {
     // Strategy 1: html and body
     for (const el of [document.documentElement, document.body]) {
+      if (!el) continue;
       const bg = getEffectiveBackground(el);
-      if (bg && isDarkColor(bg.r, bg.g, bg.b)) return true;
+      if (bg && isDarkColor(bg.r, bg.g, bg.b) && !isTextDark(el)) return true;
     }
 
     // Strategy 2: Sample first-level children
     if (document.body) {
       const children = document.body.children;
-      let darkCount = 0, sampled = 0;
-      for (let i = 0; i < Math.min(children.length, 8); i++) {
+      let db = 0, dt = 0, s = 0;
+      for (let i = 0; i < Math.min(children.length, 12); i++) {
         const child = children[i];
         if (!child || ['SCRIPT', 'STYLE', 'LINK', 'NOSCRIPT'].includes(child.tagName)) continue;
         const rect = child.getBoundingClientRect();
         if (rect.width < 50 || rect.height < 20) continue;
         const bg = getEffectiveBackground(child);
-        if (bg && isDarkColor(bg.r, bg.g, bg.b)) darkCount++;
-        sampled++;
+        if (bg && isDarkColor(bg.r, bg.g, bg.b)) db++;
+        if (isTextDark(child)) dt++;
+        s++;
       }
-      if (sampled > 0 && darkCount / sampled >= 0.4) return true;
+      if (s > 0 && db / s >= 0.4 && dt / s < 0.3) return true;
     }
 
     // Strategy 3: elementFromPoint sampling
     try {
       const vw = window.innerWidth, vh = window.innerHeight;
-      const samplePoints = [
-        [vw * 0.5, vh * 0.1], [vw * 0.5, vh * 0.5],
-        [vw * 0.1, vh * 0.5], [vw * 0.9, vh * 0.5],
-        [vw * 0.5, vh * 0.9],
-      ];
-      let darkSamples = 0, totalSamples = 0;
-      for (const [x, y] of samplePoints) {
+      const points = [[vw * 0.5, vh * 0.1], [vw * 0.5, vh * 0.5], [vw * 0.1, vh * 0.5], [vw * 0.9, vh * 0.5], [vw * 0.5, vh * 0.9]];
+      let db = 0, dt = 0, ts = 0;
+      for (const [x, y] of points) {
         const el = document.elementFromPoint(x, y);
         if (!el) continue;
-        let current = el;
-        while (current && current !== document.documentElement) {
-          const bg = getEffectiveBackground(current);
-          if (bg) {
-            if (isDarkColor(bg.r, bg.g, bg.b)) darkSamples++;
-            totalSamples++;
-            break;
-          }
-          current = current.parentElement;
+        let curr = el, foundBg = false;
+        while (curr && curr !== document.documentElement) {
+          const bg = getEffectiveBackground(curr);
+          if (bg) { if (isDarkColor(bg.r, bg.g, bg.b)) db++; foundBg = true; break; }
+          curr = curr.parentElement;
         }
+        if (foundBg) { if (isTextDark(el)) dt++; ts++; }
       }
-      if (totalSamples >= 3 && darkSamples / totalSamples >= 0.5) return true;
+      if (ts >= 3 && db / ts >= 0.5 && dt / ts < 0.3) return true;
     } catch (e) { }
 
     // Strategy 4: Recursive descent into large containers

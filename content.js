@@ -34,9 +34,22 @@ function parseColor(colorStr) {
   return null;
 }
 
-// ─── Utility: Check if a color is "dark" (luminance below threshold) ──────────
+// ─── Utility: Check if a color is "dark" / "light" ─────────────────────────────
 function isDarkColor(r, g, b) {
-  return getLuminance(r, g, b) < 0.2; // threshold: 0.2 covers most dark backgrounds
+  // Threshold 0.12 covers deep dark colors while excluding medium greys (like #767676)
+  return getLuminance(r, g, b) < 0.12;
+}
+
+function isLightColor(r, g, b) {
+  return getLuminance(r, g, b) > 0.4;
+}
+
+function isTextDark(el) {
+  if (!el) return false;
+  const style = window.getComputedStyle(el);
+  const color = parseColor(style.color);
+  // Text is considered dark if its luminance is low
+  return color && getLuminance(color.r, color.g, color.b) < 0.25;
 }
 
 // ─── Utility: Extract any color from an element's background (including shorthand) ─
@@ -78,8 +91,10 @@ function isPageDark() {
   // Strategy 1: Check html and body
   const targets = [document.documentElement, document.body];
   for (const el of targets) {
+    if (!el) continue;
     const bg = getEffectiveBackground(el);
-    if (bg && isDarkColor(bg.r, bg.g, bg.b)) {
+    // If background is dark, verify the text isn't also dark (false positive check)
+    if (bg && isDarkColor(bg.r, bg.g, bg.b) && !isTextDark(el)) {
       return true;
     }
   }
@@ -87,59 +102,63 @@ function isPageDark() {
   // Strategy 2: Sample first-level children of body
   if (document.body) {
     const children = document.body.children;
-    let darkCount = 0;
+    let darkBgCount = 0;
+    let darkTextCount = 0;
     let sampled = 0;
-    const maxSample = Math.min(children.length, 8);
+    const maxSample = Math.min(children.length, 12);
     for (let i = 0; i < maxSample; i++) {
       const child = children[i];
       if (!child || child.tagName === 'SCRIPT' || child.tagName === 'STYLE' || child.tagName === 'LINK' || child.tagName === 'NOSCRIPT') continue;
       const rect = child.getBoundingClientRect();
       if (rect.width < 50 || rect.height < 20) continue;
+
       const bg = getEffectiveBackground(child);
-      if (bg && isDarkColor(bg.r, bg.g, bg.b)) darkCount++;
+      if (bg && isDarkColor(bg.r, bg.g, bg.b)) darkBgCount++;
+      if (isTextDark(child)) darkTextCount++;
       sampled++;
     }
-    if (sampled > 0 && darkCount / sampled >= 0.4) {
+    // Is dark if background is predominantly dark AND text is NOT predominantly dark
+    if (sampled > 0 && (darkBgCount / sampled >= 0.4) && (darkTextCount / sampled < 0.3)) {
       return true;
     }
   }
 
   // Strategy 3: elementFromPoint sampling — checks what's ACTUALLY visible
-  // This catches deeply-nested dark backgrounds that strategies 1-2 miss
   try {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    // Sample 5 points across the viewport
     const samplePoints = [
-      [vw * 0.5, vh * 0.1],  // top center
-      [vw * 0.5, vh * 0.5],  // center
-      [vw * 0.1, vh * 0.5],  // left center
-      [vw * 0.9, vh * 0.5],  // right center
-      [vw * 0.5, vh * 0.9],  // bottom center
+      [vw * 0.5, vh * 0.1], [vw * 0.5, vh * 0.5],
+      [vw * 0.1, vh * 0.5], [vw * 0.9, vh * 0.5],
+      [vw * 0.5, vh * 0.9],
     ];
-    let darkSamples = 0;
+    let darkBgSamples = 0;
+    let darkTextSamples = 0;
     let totalSamples = 0;
     for (const [x, y] of samplePoints) {
       const el = document.elementFromPoint(x, y);
       if (!el) continue;
-      // Walk up until we find a non-transparent background
+
       let current = el;
+      let foundBg = false;
       while (current && current !== document.documentElement) {
         const bg = getEffectiveBackground(current);
         if (bg) {
-          if (isDarkColor(bg.r, bg.g, bg.b)) darkSamples++;
-          totalSamples++;
+          if (isDarkColor(bg.r, bg.g, bg.b)) darkBgSamples++;
+          foundBg = true;
           break;
         }
         current = current.parentElement;
       }
+      if (foundBg) {
+        if (isTextDark(el)) darkTextSamples++;
+        totalSamples++;
+      }
     }
-    if (totalSamples >= 3 && darkSamples / totalSamples >= 0.5) {
+    if (totalSamples >= 3 && (darkBgSamples / totalSamples >= 0.5) && (darkTextSamples / totalSamples < 0.3)) {
       return true;
     }
-  } catch (e) {
-    // elementFromPoint can fail in some contexts, silently continue
-  }
+  } catch (e) { }
 
   // Strategy 4: Recursive descent into large containers
   // Some sites (like Substack) have a main container 2-3 levels deep
