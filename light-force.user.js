@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Light Force
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.2
 // @description  May the Light Force be with you. Forces dark-themed websites into light mode, leaving originally light websites unaffected.
 // @author       chentao1006
 // @match        *://*/*
@@ -14,13 +14,11 @@
 (function () {
   'use strict';
 
-  // 1. Get initial state safely
   let isEnabled = GM_getValue('lightForceEnabled');
   if (isEnabled === undefined) isEnabled = true;
 
   console.log('[Light Force] Status:', isEnabled ? 'Enabled' : 'Disabled');
 
-  // 2. Register menu command to toggle
   const menuLabel = isEnabled ? 'Disable Light Force' : 'Enable Light Force';
   GM_registerMenuCommand(menuLabel, () => {
     GM_setValue('lightForceEnabled', !isEnabled);
@@ -32,109 +30,253 @@
     applyLightForce();
   }
 
-  function applyLightForce() {
-    // 1. Force the color-scheme CSS property on root element
-    const style = document.createElement('style');
-    style.id = 'light-force-css';
-    style.textContent = `
-            :root, html, body {
-                color-scheme: light !important;
-            }
-        `;
+  // ─── Utility: WCAG relative luminance ─────────────────────────────────────
+  function getLuminance(r, g, b) {
+    const [rs, gs, bs] = [r, g, b].map(c => {
+      c = c / 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+  }
 
-    // Inject immediately
-    if (document.head || document.documentElement) {
+  function parseColor(colorStr) {
+    if (!colorStr || colorStr === 'transparent' || colorStr === 'rgba(0, 0, 0, 0)') return null;
+    const match = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    if (match) {
+      const a = match[4] !== undefined ? parseFloat(match[4]) : 1;
+      if (a < 0.1) return null;
+      return { r: parseInt(match[1]), g: parseInt(match[2]), b: parseInt(match[3]), a };
+    }
+    return null;
+  }
+
+  function isDarkColor(r, g, b) { return getLuminance(r, g, b) < 0.2; }
+
+  // ─── Extract effective background from an element ─────────────────────────
+  function getEffectiveBackground(el) {
+    if (!el) return null;
+    const style = window.getComputedStyle(el);
+    const bg = parseColor(style.backgroundColor);
+    if (bg) return bg;
+    const bgImage = style.backgroundImage;
+    if (bgImage && bgImage !== 'none') {
+      const gradientColors = bgImage.match(/rgba?\(\d+,\s*\d+,\s*\d+(?:,\s*[\d.]+)?\)/g);
+      if (gradientColors) {
+        let dc = 0;
+        for (const cs of gradientColors) { const c = parseColor(cs); if (c && isDarkColor(c.r, c.g, c.b)) dc++; }
+        if (dc > gradientColors.length / 2) return parseColor(gradientColors[0]);
+      }
+    }
+    return null;
+  }
+
+  // ─── Detect if the page is dark (multi-strategy) ──────────────────────────
+  function isPageDark() {
+    // Strategy 1: html and body
+    for (const el of [document.documentElement, document.body]) {
+      const bg = getEffectiveBackground(el);
+      if (bg && isDarkColor(bg.r, bg.g, bg.b)) return true;
+    }
+
+    // Strategy 2: Sample first-level children
+    if (document.body) {
+      const children = document.body.children;
+      let darkCount = 0, sampled = 0;
+      for (let i = 0; i < Math.min(children.length, 8); i++) {
+        const child = children[i];
+        if (!child || ['SCRIPT', 'STYLE', 'LINK', 'NOSCRIPT'].includes(child.tagName)) continue;
+        const rect = child.getBoundingClientRect();
+        if (rect.width < 50 || rect.height < 20) continue;
+        const bg = getEffectiveBackground(child);
+        if (bg && isDarkColor(bg.r, bg.g, bg.b)) darkCount++;
+        sampled++;
+      }
+      if (sampled > 0 && darkCount / sampled >= 0.4) return true;
+    }
+
+    // Strategy 3: elementFromPoint sampling
+    try {
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const samplePoints = [
+        [vw * 0.5, vh * 0.1], [vw * 0.5, vh * 0.5],
+        [vw * 0.1, vh * 0.5], [vw * 0.9, vh * 0.5],
+        [vw * 0.5, vh * 0.9],
+      ];
+      let darkSamples = 0, totalSamples = 0;
+      for (const [x, y] of samplePoints) {
+        const el = document.elementFromPoint(x, y);
+        if (!el) continue;
+        let current = el;
+        while (current && current !== document.documentElement) {
+          const bg = getEffectiveBackground(current);
+          if (bg) {
+            if (isDarkColor(bg.r, bg.g, bg.b)) darkSamples++;
+            totalSamples++;
+            break;
+          }
+          current = current.parentElement;
+        }
+      }
+      if (totalSamples >= 3 && darkSamples / totalSamples >= 0.5) return true;
+    } catch (e) { }
+
+    // Strategy 4: Recursive descent into large containers
+    if (document.body) {
+      const queue = [...document.body.children];
+      let depth = 0;
+      while (queue.length > 0 && depth < 3) {
+        depth++;
+        const nextQueue = [];
+        for (const child of queue) {
+          if (!child || !child.getBoundingClientRect) continue;
+          if (['SCRIPT', 'STYLE', 'LINK', 'NOSCRIPT'].includes(child.tagName)) continue;
+          const rect = child.getBoundingClientRect();
+          if (rect.width < window.innerWidth * 0.5 || rect.height < window.innerHeight * 0.3) continue;
+          const bg = getEffectiveBackground(child);
+          if (bg && isDarkColor(bg.r, bg.g, bg.b)) return true;
+          if (child.children) nextQueue.push(...child.children);
+        }
+        queue.length = 0;
+        queue.push(...nextQueue);
+      }
+    }
+    return false;
+  }
+
+  // ─── Phase 1: Flip known theme signals ────────────────────────────────────
+  function flipThemeSignals() {
+    if (!document.getElementById('light-force-color-scheme')) {
+      const style = document.createElement('style');
+      style.id = 'light-force-color-scheme';
+      style.textContent = ':root, html, body { color-scheme: light !important; }';
       (document.head || document.documentElement).appendChild(style);
-    } else {
-      document.addEventListener('DOMContentLoaded', () => {
-        (document.head || document.documentElement).appendChild(style);
+    }
+
+    const root = document.documentElement;
+    if (root) {
+      if (root.classList.contains('dark')) { root.classList.remove('dark'); root.classList.add('light'); }
+      ['dark-mode', 'dark-theme', 'theme-dark', 'night', 'night-mode'].forEach(cls => {
+        if (root.classList.contains(cls)) root.classList.remove(cls);
+      });
+      ['theme', 'data-theme', 'data-color-mode', 'data-color-scheme', 'data-mode', 'data-appearance', 'data-bs-theme'].forEach(attr => {
+        const val = root.getAttribute(attr);
+        if (val && /dark|night/i.test(val)) root.setAttribute(attr, val.replace(/dark|night/gi, 'light'));
+      });
+      const inlineStyle = root.getAttribute('style') || '';
+      if (/color-scheme:\s*dark/i.test(inlineStyle)) {
+        root.setAttribute('style', inlineStyle.replace(/color-scheme:\s*dark/gi, 'color-scheme: light'));
+      }
+    }
+
+    const body = document.body;
+    if (body) {
+      if (body.classList.contains('dark')) { body.classList.remove('dark'); body.classList.add('light'); }
+      ['dark-mode', 'dark-theme', 'theme-dark', 'night', 'night-mode'].forEach(cls => {
+        if (body.classList.contains(cls)) body.classList.remove(cls);
+      });
+      ['data-theme', 'data-color-mode', 'data-bs-theme'].forEach(attr => {
+        const val = body.getAttribute(attr);
+        if (val && /dark|night/i.test(val)) body.setAttribute(attr, val.replace(/dark|night/gi, 'light'));
       });
     }
 
-    // 2. Helper to enforce light theme
-    const enforceLight = () => {
-      const root = document.documentElement;
-      if (root) {
-        // Handle classes (Flip 'dark' to 'light')
-        if (root.classList.contains('dark')) {
-          root.classList.remove('dark');
-          root.classList.add('light');
+    if (!document.getElementById('light-force-theme-overrides')) {
+      const overrideStyle = document.createElement('style');
+      overrideStyle.id = 'light-force-theme-overrides';
+      overrideStyle.textContent = `
+        :root[data-theme="dark"], :root.dark,
+        [data-theme="dark"] body, .dark body {
+          --background: 0 0% 100% !important;
+          --foreground: 222.2 84% 4.9% !important;
+          background-color: white !important;
+          color: #1a1a1a !important;
         }
+      `;
+      (document.head || document.documentElement).appendChild(overrideStyle);
+    }
+  }
 
-        // Handle attributes (Classic themes)
-        if (root.getAttribute('theme') === 'dark') root.setAttribute('theme', 'light');
-        if (root.getAttribute('data-theme') === 'dark') root.setAttribute('data-theme', 'light');
-        if (root.getAttribute('data-color-mode') === 'dark') root.setAttribute('data-color-mode', 'light');
+  // ─── Phase 3: Universal CSS filter inversion ──────────────────────────────
+  function applyFilterInversion() {
+    if (document.getElementById('light-force-invert')) return;
+    const invertStyle = document.createElement('style');
+    invertStyle.id = 'light-force-invert';
+    invertStyle.textContent = `
+      html { filter: invert(1) hue-rotate(180deg) !important; }
+      img, video, canvas, .emoji, iframe { filter: invert(1) hue-rotate(180deg) !important; }
+      svg image { filter: invert(1) hue-rotate(180deg) !important; }
+    `;
+    (document.head || document.documentElement).appendChild(invertStyle);
+    requestAnimationFrame(() => { reInvertBackgroundImages(); });
+  }
 
-        // Handle OpenClaw specific (and common others)
-        // Note: Even if it's not set to dark, we want to force 'light'
-        if (root.getAttribute('data-theme') !== 'light') {
-          root.setAttribute('data-theme', 'light');
-        }
+  function reInvertBackgroundImages() {
+    if (document.getElementById('light-force-bg-reinvert')) return;
+    const selectors = [];
+    const walker = document.createTreeWalker(document.body || document.documentElement, NodeFilter.SHOW_ELEMENT, null);
+    let count = 0, node;
+    while ((node = walker.nextNode()) && count < 3000) {
+      count++;
+      const style = window.getComputedStyle(node);
+      if (!style.backgroundImage || style.backgroundImage === 'none') continue;
+      if (!style.backgroundImage.includes('url(')) continue;
+      if (node.querySelector('img, video, canvas, iframe')) continue;
+      const uid = 'lf-' + Math.random().toString(36).substr(2, 6);
+      node.setAttribute('data-lf-bg', uid);
+      selectors.push(`[data-lf-bg="${uid}"]`);
+    }
+    if (selectors.length > 0) {
+      const bgStyle = document.createElement('style');
+      bgStyle.id = 'light-force-bg-reinvert';
+      bgStyle.textContent = selectors.map(sel => `${sel} { filter: invert(1) hue-rotate(180deg) !important; }`).join('\n');
+      document.head.appendChild(bgStyle);
+    }
+  }
 
-        // Handle hardcoded style attribute on root
-        const currentStyle = root.getAttribute('style') || '';
-        if (currentStyle.includes('color-scheme: dark')) {
-          root.setAttribute('style', currentStyle.replace(/color-scheme:\s*dark/g, 'color-scheme: light'));
-        }
-      }
+  // ─── Main ──────────────────────────────────────────────────────────────────
+  function applyLightForce() {
+    flipThemeSignals();
 
-      const body = document.body;
-      if (body) {
-        if (body.classList.contains('dark')) {
-          body.classList.remove('dark');
-          body.classList.add('light');
-        }
-        if (body.getAttribute('data-theme') === 'dark') body.setAttribute('data-theme', 'light');
-        if (body.getAttribute('data-theme') !== 'light') body.setAttribute('data-theme', 'light');
-      }
-
-      // 3. Target specific elements that use hardcoded dark classes (Tailwind, etc.)
-      const darkElements = document.querySelectorAll('.bg-black, .bg-gray-900, .bg-zinc-950, [class*="bg-black/"], [class*="bg-zinc-950/"], .bg-slate-950');
-      darkElements.forEach(el => {
-        if (window.getComputedStyle(el).position === 'fixed' || window.getComputedStyle(el).position === 'absolute') {
-          el.style.setProperty('background-color', 'rgba(255, 255, 255, 0.8)', 'important');
+    const detectAndFix = () => {
+      flipThemeSignals();
+      requestAnimationFrame(() => {
+        if (isPageDark()) {
+          console.log('[Light Force] Page detected as dark — applying filter inversion');
+          applyFilterInversion();
         } else {
-          el.style.setProperty('background-color', 'white', 'important');
-          el.style.setProperty('color', '#1a1a1a', 'important');
+          console.log('[Light Force] Page is light — no inversion needed');
         }
-      });
-
-      // Fix invisible text (light text on white background)
-      const lightTextElements = document.querySelectorAll('.text-gray-100, .text-zinc-100, .text-white, .text-slate-100, .text-zinc-400, .text-gray-400');
-      lightTextElements.forEach(el => {
-        el.style.setProperty('color', '#333', 'important'); // Force dark gray
       });
     };
 
-    // 4. More aggressive CSS injection for sites that hardcode dark mode
-    const forceLightCSS = document.createElement('style');
-    forceLightCSS.id = 'light-force-global-overrides';
-    forceLightCSS.textContent = `
-        /* Overwrite common dark mode variables if they exist at :root */
-        :root[data-theme="dark"], :root.dark {
-            --background: 0 0% 100% !important;
-            --foreground: 222.2 84% 4.9% !important;
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => { setTimeout(detectAndFix, 50); });
+    } else {
+      setTimeout(detectAndFix, 50);
+    }
+
+    window.addEventListener('load', () => { setTimeout(detectAndFix, 200); });
+
+    const observer = new MutationObserver(() => {
+      clearTimeout(observer._timer);
+      observer._timer = setTimeout(() => {
+        flipThemeSignals();
+        if (!document.getElementById('light-force-invert')) {
+          requestAnimationFrame(() => {
+            if (isPageDark()) {
+              console.log('[Light Force] Page turned dark dynamically — applying filter inversion');
+              applyFilterInversion();
+            }
+          });
         }
-        /* Generic fallback inversion for very stubborn elements */
-        [data-theme="dark"] body {
-            background-color: white !important;
-            color: black !important;
-        }
-    `;
-    (document.head || document.documentElement).appendChild(forceLightCSS);
-
-    // Run immediately
-    enforceLight();
-
-    // 3. Monitor for changes
-    const observer = new MutationObserver(enforceLight);
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      childList: true,
-      subtree: true,
-      attributeFilter: ['class', 'theme', 'data-theme', 'data-color-mode', 'style']
+      }, 200);
     });
+
+    if (document.documentElement) {
+      observer.observe(document.documentElement, {
+        attributes: true, childList: true, subtree: false,
+        attributeFilter: ['class', 'theme', 'data-theme', 'data-color-mode', 'style', 'data-bs-theme']
+      });
+    }
   }
 })();
