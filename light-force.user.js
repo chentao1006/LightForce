@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Light Force
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.3
 // @description  May the Light Force be with you. Forces dark-themed websites into light mode, leaving originally light websites unaffected.
 // @author       chentao1006
 // @match        *://*/*
@@ -14,19 +14,26 @@
 (function () {
   'use strict';
 
-  let isEnabled = GM_getValue('lightForceEnabled');
-  if (isEnabled === undefined) isEnabled = true;
+  let isEnabled = GM_getValue('lightForceEnabled', true);
+  let isOnlyDaylight = GM_getValue('onlyDaylightEnabled', false);
 
-  console.log('[Light Force] Status:', isEnabled ? 'Enabled' : 'Disabled');
+  console.log('[Light Force] Status:', isEnabled ? 'Enabled' : 'Disabled', '| Only for Daylight:', isOnlyDaylight ? 'Yes' : 'No');
 
-  const menuLabel = isEnabled ? 'Disable Light Force' : 'Enable Light Force';
-  GM_registerMenuCommand(menuLabel, () => {
+  GM_registerMenuCommand(isEnabled ? 'Disable Light Force' : 'Enable Light Force', () => {
     GM_setValue('lightForceEnabled', !isEnabled);
-    console.log('[Light Force] Toggled to:', !isEnabled);
+    location.reload();
+  });
+
+  GM_registerMenuCommand(isOnlyDaylight ? 'Disable Only for Daylight' : 'Enable Only for Daylight', () => {
+    GM_setValue('onlyDaylightEnabled', !isOnlyDaylight);
     location.reload();
   });
 
   if (isEnabled) {
+    if (isOnlyDaylight && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      console.log('[Light Force] "Only for day light" is active and system is in dark mode. Skipping.');
+      return;
+    }
     applyLightForce();
   }
 

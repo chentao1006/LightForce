@@ -4,9 +4,15 @@
 //   Phase 2: Detect if page is STILL dark by analyzing computed background luminance
 //   Phase 3: If still dark, apply universal CSS filter inversion (the nuclear option)
 
-chrome.storage.sync.get(['lightForceEnabled'], (result) => {
+chrome.storage.sync.get(['lightForceEnabled', 'onlyDaylightEnabled'], (result) => {
   const isEnabled = result.lightForceEnabled !== false;
+  const isOnlyDaylight = result.onlyDaylightEnabled === true;
+
   if (isEnabled) {
+    if (isOnlyDaylight && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      console.log('[Light Force] "Only for day light" is active and system is in dark mode. Skipping.');
+      return;
+    }
     applyLightForce();
   }
 });

@@ -1,36 +1,43 @@
 body {
-    width: 220px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    margin: 0;
-    padding: 15px;
-    background-color: #f8f9fa;
-    color: #333;
+  width: 220px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  color: #333;
 }
+
 .header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
 }
+
 .header img {
-    margin-right: 12px;
+  margin-right: 12px;
 }
+
 .title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #007bff; /* Jedi Blue */
-    text-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  font-size: 18px;
+  font-weight: 700;
+  color: #007bff;
+  /* Jedi Blue */
+  text-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }
+
 .content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #ffffff;
-    padding: 12px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    font-size: 14px;
-    font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 12px;
 }
+
 /* Toggle Switch CSS */
 .switch {
   position: relative;
@@ -38,18 +45,24 @@ body {
   width: 44px;
   height: 24px;
 }
+
 .switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
+
 .slider {
   position: absolute;
   cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #dcdcdc;
   transition: .3s;
 }
+
 .slider:before {
   position: absolute;
   content: "";
@@ -59,18 +72,23 @@ body {
   bottom: 3px;
   background-color: white;
   transition: .3s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
-input:checked + .slider {
-  background-color: #007bff; /* Lightsaber blue */
+
+input:checked+.slider {
+  background-color: #007bff;
+  /* Lightsaber blue */
   box-shadow: 0 0 8px #007bff;
 }
-input:checked + .slider:before {
+
+input:checked+.slider:before {
   transform: translateX(20px);
 }
+
 .slider.round {
   border-radius: 24px;
 }
+
 .slider.round:before {
   border-radius: 50%;
 }
