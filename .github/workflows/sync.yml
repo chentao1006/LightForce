@@ -1,0 +1,33 @@
+name: Sync userscript
+
+on:
+  push:
+    paths:
+      - "light-force.user.js"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source repo
+        uses: actions/checkout@v4
+
+      - name: Clone target repo
+        run: |
+          git clone https://$TOKEN@github.com/chentao1006/user-scripts.git target
+        env:
+          TOKEN: ${{ secrets.SYNC_TOKEN }}
+
+      - name: Copy file
+        run: |
+          cp light-force.user.js target/light-force.js
+
+      - name: Commit and push
+        run: |
+          cd target
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add light-force.js
+          git commit -m "auto update from LightForce" || echo "no changes"
+          git push
