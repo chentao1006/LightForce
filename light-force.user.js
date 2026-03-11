@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Light Force
-// @namespace    http://tampermonkey.net/
+// @namespace    https://ct106.com
 // @version      1.3
 // @description  May the Light Force be with you. Forces dark-themed websites into light mode, leaving originally light websites unaffected.
 // @author       chentao1006
