@@ -89,7 +89,12 @@
     for (const el of [document.documentElement, document.body]) {
       if (!el) continue;
       const bg = getEffectiveBackground(el);
-      if (bg && isDarkColor(bg.r, bg.g, bg.b) && !isTextDark(el)) return true;
+      if (!bg) continue;
+
+      // --- NEW: Definitive Light Signal ---
+      if (getLuminance(bg.r, bg.g, bg.b) > 0.4) return false;
+
+      if (isDarkColor(bg.r, bg.g, bg.b) && !isTextDark(el)) return true;
     }
 
     // Strategy 2: Sample first-level children
@@ -163,8 +168,11 @@
     const root = document.documentElement;
     if (root) {
       if (root.classList.contains('dark')) { root.classList.remove('dark'); root.classList.add('light'); }
-      ['dark-mode', 'dark-theme', 'theme-dark', 'night', 'night-mode'].forEach(cls => {
-        if (root.classList.contains(cls)) root.classList.remove(cls);
+      ['dark-mode', 'dark-theme', 'theme-dark', 'night', 'night-mode', 'theme-system'].forEach(cls => {
+        if (root.classList.contains(cls)) {
+          root.classList.remove(cls);
+          if (cls === 'theme-system') root.classList.add('theme-light');
+        }
       });
       ['theme', 'data-theme', 'data-color-mode', 'data-color-scheme', 'data-mode', 'data-appearance', 'data-bs-theme'].forEach(attr => {
         const val = root.getAttribute(attr);
@@ -179,8 +187,11 @@
     const body = document.body;
     if (body) {
       if (body.classList.contains('dark')) { body.classList.remove('dark'); body.classList.add('light'); }
-      ['dark-mode', 'dark-theme', 'theme-dark', 'night', 'night-mode'].forEach(cls => {
-        if (body.classList.contains(cls)) body.classList.remove(cls);
+      ['dark-mode', 'dark-theme', 'theme-dark', 'night', 'night-mode', 'theme-system'].forEach(cls => {
+        if (body.classList.contains(cls)) {
+          body.classList.remove(cls);
+          if (cls === 'theme-system') body.classList.add('theme-light');
+        }
       });
       ['data-theme', 'data-color-mode', 'data-bs-theme'].forEach(attr => {
         const val = body.getAttribute(attr);

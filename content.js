@@ -99,8 +99,16 @@ function isPageDark() {
   for (const el of targets) {
     if (!el) continue;
     const bg = getEffectiveBackground(el);
+    if (!bg) continue;
+
+    // --- NEW: Definitive Light Signal ---
+    // If body/html is explicitly light, we trust it over individual element sampling.
+    if (isLightColor(bg.r, bg.g, bg.b)) {
+      return false; 
+    }
+
     // If background is dark, verify the text isn't also dark (false positive check)
-    if (bg && isDarkColor(bg.r, bg.g, bg.b) && !isTextDark(el)) {
+    if (isDarkColor(bg.r, bg.g, bg.b) && !isTextDark(el)) {
       return true;
     }
   }
@@ -219,9 +227,10 @@ function flipThemeSignals() {
       root.classList.add('light');
     }
     // Flip common dark-related classes
-    ['dark-mode', 'dark-theme', 'theme-dark', 'night', 'night-mode'].forEach(cls => {
+    ['dark-mode', 'dark-theme', 'theme-dark', 'night', 'night-mode', 'theme-system'].forEach(cls => {
       if (root.classList.contains(cls)) {
         root.classList.remove(cls);
+        if (cls === 'theme-system') root.classList.add('theme-light');
       }
     });
 
@@ -248,9 +257,10 @@ function flipThemeSignals() {
       body.classList.remove('dark');
       body.classList.add('light');
     }
-    ['dark-mode', 'dark-theme', 'theme-dark', 'night', 'night-mode'].forEach(cls => {
+    ['dark-mode', 'dark-theme', 'theme-dark', 'night', 'night-mode', 'theme-system'].forEach(cls => {
       if (body.classList.contains(cls)) {
         body.classList.remove(cls);
+        if (cls === 'theme-system') body.classList.add('theme-light');
       }
     });
     const darkAttrs = ['data-theme', 'data-color-mode', 'data-bs-theme'];
