@@ -104,7 +104,7 @@ function isPageDark() {
     // --- NEW: Definitive Light Signal ---
     // If body/html is explicitly light, we trust it over individual element sampling.
     if (isLightColor(bg.r, bg.g, bg.b)) {
-      return false; 
+      return false;
     }
 
     // If background is dark, verify the text isn't also dark (false positive check)
@@ -332,44 +332,73 @@ function applyFilterInversion() {
 }
 
 // ─── Scan for background-image elements and re-invert them ────────────────────
-// Elements with background-image: url(...) are NOT handled by the CSS above,
-// because there's no pure CSS selector for "has a url() background-image".
-// We scan the DOM and tag these elements for re-inversion, but SKIP any element
-// that contains an <img>, <video>, <canvas>, or <iframe> child (to avoid
-// double re-inversion on the child media).
+// Elements with background-image: url(...) need re-inversion because they are
+// inverted by the global html filter.
+// We use two strategies:
+// 1. Leaf elements: Direct filter inversion.
+// 2. Containers (e.g. body): Pseudo-element inversion to avoid double-inverting children.
 function reInvertBackgroundImages() {
   if (document.getElementById('light-force-bg-reinvert')) return;
 
-  const selectors = [];
   const walker = document.createTreeWalker(
     document.body || document.documentElement,
     NodeFilter.SHOW_ELEMENT,
     null
   );
 
+  const leafRules = [];
+  const containerRules = [];
   let count = 0;
   let node;
-  while ((node = walker.nextNode()) && count < 3000) {
+
+  while ((node = walker.nextNode()) && count < 5000) {
     count++;
     const style = window.getComputedStyle(node);
-    if (!style.backgroundImage || style.backgroundImage === 'none') continue;
-    if (!style.backgroundImage.includes('url(')) continue;
+    const bg = style.backgroundImage;
+    if (!bg || bg === 'none' || !bg.includes('url(')) continue;
 
-    // Skip if this element contains media children (they already re-invert themselves)
-    if (node.querySelector('img, video, canvas, iframe')) continue;
+    // Skip if it looks like a gradient only (should have been caught by includes('url(') anyway)
+    if (!bg.includes('url(')) continue;
 
-    // Tag with a data attribute for CSS targeting
     const uid = 'lf-' + Math.random().toString(36).substr(2, 6);
     node.setAttribute('data-lf-bg', uid);
-    selectors.push(`[data-lf-bg="${uid}"]`);
+
+    // Determine if we need the container strategy (pseudo-element)
+    const hasMediaChildren = node.querySelector('img, video, canvas, iframe');
+    const isLarge = node.offsetWidth > window.innerWidth * 0.4 && node.offsetHeight > window.innerHeight * 0.4;
+
+    if (hasMediaChildren || isLarge || node === document.body || node === document.documentElement) {
+      containerRules.push(`
+        [data-lf-bg="${uid}"] {
+          position: relative !important;
+          background-image: none !important;
+          z-index: 0 !important;
+        }
+        [data-lf-bg="${uid}"]::before {
+          content: "" !important;
+          position: absolute !important;
+          top: 0 !important; left: 0 !important;
+          width: 100% !important; height: 100% !important;
+          background-image: ${bg} !important;
+          background-size: ${style.backgroundSize} !important;
+          background-position: ${style.backgroundPosition} !important;
+          background-repeat: ${style.backgroundRepeat} !important;
+          background-attachment: ${style.backgroundAttachment} !important;
+          filter: invert(1) hue-rotate(180deg) !important;
+          z-index: -1 !important;
+          pointer-events: none !important;
+          opacity: ${style.opacity} !important;
+        }
+      `);
+    } else {
+      leafRules.push(`[data-lf-bg="${uid}"] { filter: invert(1) hue-rotate(180deg) !important; }`);
+    }
   }
 
-  if (selectors.length > 0) {
+  if (leafRules.length > 0 || containerRules.length > 0) {
     const bgStyle = document.createElement('style');
     bgStyle.id = 'light-force-bg-reinvert';
-    bgStyle.textContent = selectors
-      .map(sel => `${sel} { filter: invert(1) hue-rotate(180deg) !important; }`)
-      .join('\n');
+    bgStyle.textContent = leafRules.join('\n') + '\n' + containerRules.join('\n');
     document.head.appendChild(bgStyle);
   }
 }

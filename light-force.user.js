@@ -231,23 +231,37 @@
 
   function reInvertBackgroundImages() {
     if (document.getElementById('light-force-bg-reinvert')) return;
-    const selectors = [];
     const walker = document.createTreeWalker(document.body || document.documentElement, NodeFilter.SHOW_ELEMENT, null);
+    const leafRules = [], containerRules = [];
     let count = 0, node;
-    while ((node = walker.nextNode()) && count < 3000) {
+    while ((node = walker.nextNode()) && count < 5000) {
       count++;
       const style = window.getComputedStyle(node);
-      if (!style.backgroundImage || style.backgroundImage === 'none') continue;
-      if (!style.backgroundImage.includes('url(')) continue;
-      if (node.querySelector('img, video, canvas, iframe')) continue;
+      const bg = style.backgroundImage;
+      if (!bg || bg === 'none' || !bg.includes('url(')) continue;
       const uid = 'lf-' + Math.random().toString(36).substr(2, 6);
       node.setAttribute('data-lf-bg', uid);
-      selectors.push(`[data-lf-bg="${uid}"]`);
+
+      const hasMedia = node.querySelector('img, video, canvas, iframe');
+      const isLarge = node.offsetWidth > window.innerWidth * 0.4 && node.offsetHeight > window.innerHeight * 0.4;
+      if (hasMedia || isLarge || node === document.body || node === document.documentElement) {
+        containerRules.push(`
+          [data-lf-bg="${uid}"] { position: relative !important; background-image: none !important; z-index: 0 !important; }
+          [data-lf-bg="${uid}"]::before {
+            content: "" !important; position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important;
+            background-image: ${bg} !important; background-size: ${style.backgroundSize} !important; background-position: ${style.backgroundPosition} !important;
+            background-repeat: ${style.backgroundRepeat} !important; background-attachment: ${style.backgroundAttachment} !important;
+            filter: invert(1) hue-rotate(180deg) !important; z-index: -1 !important; pointer-events: none !important; opacity: ${style.opacity} !important;
+          }
+        `);
+      } else {
+        leafRules.push(`[data-lf-bg="${uid}"] { filter: invert(1) hue-rotate(180deg) !important; }`);
+      }
     }
-    if (selectors.length > 0) {
+    if (leafRules.length > 0 || containerRules.length > 0) {
       const bgStyle = document.createElement('style');
       bgStyle.id = 'light-force-bg-reinvert';
-      bgStyle.textContent = selectors.map(sel => `${sel} { filter: invert(1) hue-rotate(180deg) !important; }`).join('\n');
+      bgStyle.textContent = leafRules.join('\n') + '\n' + containerRules.join('\n');
       document.head.appendChild(bgStyle);
     }
   }
