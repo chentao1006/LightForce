@@ -1,0 +1,26 @@
+{
+  "appName": {
+    "message": "Light Force"
+  },
+  "appDescription": {
+    "message": "May the Light Force be with you! Forces dark-themed websites into light mode, leaving originally light websites unaffected."
+  },
+  "forceLightTheme": {
+    "message": "Force Light Theme"
+  },
+  "onlyForDaylight": {
+    "message": "Only in Light Mode"
+  },
+  "darkDetected": {
+    "message": "Page detected as dark — applying filter inversion"
+  },
+  "lightDetected": {
+    "message": "Page is light — checking for dark containers"
+  },
+  "dynamicDark": {
+    "message": "Page turned dark dynamically — applying filter inversion"
+  },
+  "daylightActive": {
+    "message": "\"Only for day light\" is active and system is in dark mode. Skipping."
+  }
+}

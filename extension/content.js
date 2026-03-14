@@ -11,7 +11,7 @@ chrome.storage.sync.get(['lightForceEnabled', 'onlyDaylightEnabled'], (result) =
 
   if (isEnabled) {
     if (isOnlyDaylight && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      console.log('[Light Force] "Only for day light" is active and system is in dark mode. Skipping.');
+      console.log(`[Light Force] ${chrome.i18n.getMessage('daylightActive')}`);
       return;
     }
     applyLightForce();
@@ -456,13 +456,13 @@ function applyLightForce() {
 
     // Give a frame for CSS to recompute after Phase 1 changes
     requestAnimationFrame(() => {
-      if (isPageDark()) {
-        console.log('[Light Force] Page detected as dark — applying filter inversion');
-        applyFilterInversion();
-      } else {
-        console.log('[Light Force] Page is light — checking for dark containers');
-        illuminateSpecificDarkAreas();
-      }
+        if (isPageDark()) {
+          console.log(`[Light Force] ${chrome.i18n.getMessage('darkDetected')}`);
+          applyFilterInversion();
+        } else {
+          console.log(`[Light Force] ${chrome.i18n.getMessage('lightDetected')}`);
+          illuminateSpecificDarkAreas();
+        }
     });
   };
 
@@ -488,7 +488,7 @@ function applyLightForce() {
       if (!document.getElementById('light-force-invert')) {
         requestAnimationFrame(() => {
           if (isPageDark()) {
-            console.log('[Light Force] Page turned dark dynamically — applying filter inversion');
+            console.log(`[Light Force] ${chrome.i18n.getMessage('dynamicDark')}`);
             applyFilterInversion();
           } else {
             illuminateSpecificDarkAreas();

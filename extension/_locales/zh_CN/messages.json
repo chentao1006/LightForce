@@ -1,0 +1,26 @@
+{
+  "appName": {
+    "message": "Light Force"
+  },
+  "appDescription": {
+    "message": "愿光明原力与你同在！将深色模式网站强制转为浅色模式，不影响原生浅色网站。"
+  },
+  "forceLightTheme": {
+    "message": "强制网页浅色"
+  },
+  "onlyForDaylight": {
+    "message": "仅当系统浅色"
+  },
+  "darkDetected": {
+    "message": "探测到深色页面 — 应用滤镜反转"
+  },
+  "lightDetected": {
+    "message": "页面为浅色 — 检查深色容器"
+  },
+  "dynamicDark": {
+    "message": "页面动态变为深色 — 应用滤镜反转"
+  },
+  "daylightActive": {
+    "message": "“仅当系统浅色”已激活且系统当前处于深色模式。跳过。"
+  }
+}

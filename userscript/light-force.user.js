@@ -1,8 +1,10 @@
 // ==UserScript==
 // @name         Light Force
+// @name:zh      Light Force (光明原力)
 // @namespace    https://ct106.com
 // @version      1.3.4
 // @description  May the Light Force be with you! Forces dark-themed websites into light mode, leaving originally light websites unaffected.
+// @description:zh 愿光明原力与你同在！将深色模式网站强制转为浅色模式，不影响原生浅色网站。
 // @author       chentao1006
 // @match        *://*/*
 // @grant        GM_getValue
@@ -14,24 +16,60 @@
 (function () {
   'use strict';
 
+  const lang = navigator.language.startsWith('zh') ? 'zh' : 'en';
+  const i18n = {
+    zh: {
+      enabled: '已启用',
+      disabled: '已禁用',
+      yes: '是',
+      no: '否',
+      enableForce: '启用 强制网页浅色',
+      disableForce: '禁用 强制网页浅色',
+      enableDaylight: '启用 仅当系统浅色',
+      disableDaylight: '禁用 仅当系统浅色',
+      status: '状态',
+      onlyDaylight: '仅当系统浅色',
+      darkDetected: '探测到深色页面 — 应用滤镜反转',
+      lightDetected: '页面为浅色 — 检查深色容器',
+      dynamicDark: '页面动态变为深色 — 应用滤镜反转',
+      daylightActive: '已开启“仅当系统浅色”，且系统当前处于深色模式。跳过。'
+    },
+    en: {
+      enabled: 'Enabled',
+      disabled: 'Disabled',
+      yes: 'Yes',
+      no: 'No',
+      enableForce: 'Enable Light Force',
+      disableForce: 'Disable Light Force',
+      enableDaylight: 'Enable Only in Light Mode',
+      disableDaylight: 'Disable Only in Light Mode',
+      status: 'Status',
+      onlyDaylight: 'Only in Light Mode',
+      darkDetected: 'Page detected as dark — applying filter inversion',
+      lightDetected: 'Page is light — checking for dark containers',
+      dynamicDark: 'Page turned dark dynamically — applying filter inversion',
+      daylightActive: '"Only in Light Mode" is active and system is currently in Dark Mode. Skipping.'
+    }
+  }[lang];
+
   let isEnabled = GM_getValue('lightForceEnabled', true);
   let isOnlyDaylight = GM_getValue('onlyDaylightEnabled', false);
 
-  console.log('[Light Force] Status:', isEnabled ? 'Enabled' : 'Disabled', '| Only for Daylight:', isOnlyDaylight ? 'Yes' : 'No');
+  console.log(`[Light Force] ${i18n.status}:`, isEnabled ? i18n.enabled : i18n.disabled, `| ${i18n.onlyDaylight}:`, isOnlyDaylight ? i18n.yes : i18n.no);
 
-  GM_registerMenuCommand(isEnabled ? 'Disable Light Force' : 'Enable Light Force', () => {
+  GM_registerMenuCommand(isEnabled ? i18n.disableForce : i18n.enableForce, () => {
     GM_setValue('lightForceEnabled', !isEnabled);
     location.reload();
   });
 
-  GM_registerMenuCommand(isOnlyDaylight ? 'Disable Only for Daylight' : 'Enable Only for Daylight', () => {
+  GM_registerMenuCommand(isOnlyDaylight ? i18n.disableDaylight : i18n.enableDaylight, () => {
     GM_setValue('onlyDaylightEnabled', !isOnlyDaylight);
     location.reload();
   });
 
   if (isEnabled) {
     if (isOnlyDaylight && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      console.log('[Light Force] "Only for day light" is active and system is in dark mode. Skipping.');
+      console.log(`[Light Force] ${i18n.daylightActive}`);
       return;
     }
     applyLightForce();
@@ -304,10 +342,10 @@
       flipThemeSignals();
       requestAnimationFrame(() => {
         if (isPageDark()) {
-          console.log('[Light Force] Page detected as dark — applying filter inversion');
+          console.log(`[Light Force] ${i18n.darkDetected}`);
           applyFilterInversion();
         } else {
-          console.log('[Light Force] Page is light — checking for dark containers');
+          console.log(`[Light Force] ${i18n.lightDetected}`);
           illuminateSpecificDarkAreas();
         }
       });
@@ -328,7 +366,7 @@
         if (!document.getElementById('light-force-invert')) {
           requestAnimationFrame(() => {
             if (isPageDark()) {
-              console.log('[Light Force] Page turned dark dynamically — applying filter inversion');
+              console.log(`[Light Force] ${i18n.dynamicDark}`);
               applyFilterInversion();
             } else {
               illuminateSpecificDarkAreas();
