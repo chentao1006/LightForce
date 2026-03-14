@@ -3,7 +3,7 @@ name: Sync userscript
 on:
   push:
     paths:
-      - "light-force.user.js"
+      - "userscript/light-force.user.js"
 
 jobs:
   sync:
