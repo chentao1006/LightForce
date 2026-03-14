@@ -2,7 +2,7 @@
 // @name         Light Force
 // @name:zh      Light Force (光明原力)
 // @namespace    https://ct106.com
-// @version      1.3.4
+// @version      1.3.5
 // @description  May the Light Force be with you! Forces dark-themed websites into light mode, leaving originally light websites unaffected.
 // @description:zh 愿光明原力与你同在！将深色模式网站强制转为浅色模式，不影响原生浅色网站。
 // @author       chentao1006
@@ -11,6 +11,7 @@
 // @grant        GM_setValue
 // @grant        GM_registerMenuCommand
 // @run-at       document-start
+// @allFrames     true
 // ==/UserScript==
 
 (function () {
@@ -96,6 +97,8 @@
   }
 
   function isDarkColor(r, g, b) { return getLuminance(r, g, b) < 0.12; }
+  function isLightColor(r, g, b) { return getLuminance(r, g, b) > 0.4; }
+
   function isTextDark(el) {
     if (!el) return false;
     const style = window.getComputedStyle(el);
@@ -140,7 +143,7 @@
       if (!bg) continue;
 
       // --- NEW: Definitive Light Signal ---
-      if (getLuminance(bg.r, bg.g, bg.b) > 0.4) return false;
+      if (isLightColor(bg.r, bg.g, bg.b)) return false;
 
       if (isDarkColor(bg.r, bg.g, bg.b) && !isTextDark(el)) return true;
     }
