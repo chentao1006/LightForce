@@ -2,7 +2,7 @@
 
 **May the Light Force Drop the Darkness.**
 
-***English*** | [简体中文](./README_CN.md)
+**English** | [简体中文](./README_CN.md)
 
 ---
 
