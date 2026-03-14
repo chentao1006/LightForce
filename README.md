@@ -2,6 +2,10 @@
 
 **May the Light Force Drop the Darkness.**
 
+***English*** | [简体中文](./README_CN.md)
+
+---
+
 Light Force is a lightweight, simple Chrome extension designed with a single, noble purpose: to bring the light side back. It cuts through forced dark mode CSS and forcefully illuminates the websites you visit, instantly switching their appearance back to a readable, bright, and clean light theme.
 
 ## 🌟 Why Use Light Force?

@@ -3,6 +3,7 @@
 //   Phase 1: Flip known theme signals (class, data attributes, color-scheme)
 //   Phase 2: Detect if page is STILL dark by analyzing computed background luminance
 //   Phase 3: If still dark, apply universal CSS filter inversion (the nuclear option)
+//   Phase 4: Even if page is light, find and illuminate specific dark areas (banners, footers)
 
 chrome.storage.sync.get(['lightForceEnabled', 'onlyDaylightEnabled'], (result) => {
   const isEnabled = result.lightForceEnabled !== false;
@@ -94,6 +95,19 @@ function getEffectiveBackground(el) {
 //   3. Use elementFromPoint to sample actual visible colors at key viewport positions
 //   4. Recursively check large nested containers (for sites like Substack)
 function isPageDark() {
+  // Strategy 0: Master Light Override — Check for major light containers
+  const majorTargets = document.querySelectorAll('div, section, main, article');
+  for (const el of majorTargets) {
+    const rect = el.getBoundingClientRect();
+    // If a large element (occupying most of the viewport area) is light, the page is light.
+    if (rect.width > window.innerWidth * 0.6 && rect.height > window.innerHeight * 0.4) {
+      const bg = getEffectiveBackground(el);
+      if (bg && isLightColor(bg.r, bg.g, bg.b)) {
+        return false;
+      }
+    }
+  }
+
   // Strategy 1: Check html and body
   const targets = [document.documentElement, document.body];
   for (const el of targets) {
@@ -403,6 +417,33 @@ function reInvertBackgroundImages() {
   }
 }
 
+// ─── Phase 4: Illuminate specific dark containers (for mixed-theme sites) ────
+// Targets large dark areas like banners, headers, and footers on otherwise light pages.
+function illuminateSpecificDarkAreas() {
+  if (document.getElementById('light-force-invert')) return; // Global inversion already active
+
+  const selector = 'header, footer, nav, aside, [class*="header"], [class*="nav"], [class*="footer"], [class*="banner"], [class*="topbar"]';
+  const targets = document.querySelectorAll(selector);
+
+  targets.forEach(el => {
+    // Skip if already handled or too small
+    if (el.hasAttribute('data-lf-illuminated')) return;
+    const rect = el.getBoundingClientRect();
+    if (rect.width < 100 || rect.height < 20) return;
+
+    const bg = getEffectiveBackground(el);
+    if (bg && isDarkColor(bg.r, bg.g, bg.b)) {
+      el.setAttribute('data-lf-illuminated', 'true');
+      el.style.filter = 'invert(1) hue-rotate(180deg)';
+
+      // Re-invert media inside this specific container
+      el.querySelectorAll('img, video, canvas, svg, [style*="background-image"]').forEach(media => {
+        media.style.filter = 'invert(1) hue-rotate(180deg)';
+      });
+    }
+  });
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 function applyLightForce() {
   // Phase 1: Immediately inject color-scheme and flip known signals
@@ -419,7 +460,8 @@ function applyLightForce() {
         console.log('[Light Force] Page detected as dark — applying filter inversion');
         applyFilterInversion();
       } else {
-        console.log('[Light Force] Page is light — no inversion needed');
+        console.log('[Light Force] Page is light — checking for dark containers');
+        illuminateSpecificDarkAreas();
       }
     });
   };
@@ -448,6 +490,8 @@ function applyLightForce() {
           if (isPageDark()) {
             console.log('[Light Force] Page turned dark dynamically — applying filter inversion');
             applyFilterInversion();
+          } else {
+            illuminateSpecificDarkAreas();
           }
         });
       }

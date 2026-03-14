@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Light Force
 // @namespace    https://ct106.com
-// @version      1.3.3
+// @version      1.3.4
 // @description  May the Light Force be with you. Forces dark-themed websites into light mode, leaving originally light websites unaffected.
 // @author       chentao1006
 // @match        *://*/*
@@ -85,6 +85,16 @@
 
   // ─── Detect if the page is dark (multi-strategy) ──────────────────────────
   function isPageDark() {
+    // Strategy 0: Master Light Override
+    const mt = document.querySelectorAll('div, section, main, article');
+    for (const el of mt) {
+      const r = el.getBoundingClientRect();
+      if (r.width > window.innerWidth * 0.6 && r.height > window.innerHeight * 0.4) {
+        const bg = getEffectiveBackground(el);
+        if (bg && isLightColor(bg.r, bg.g, bg.b)) return false;
+      }
+    }
+
     // Strategy 1: html and body
     for (const el of [document.documentElement, document.body]) {
       if (!el) continue;
@@ -266,6 +276,26 @@
     }
   }
 
+  // ─── Phase 4: Illuminate specific dark containers (for mixed-theme sites) ────
+  function illuminateSpecificDarkAreas() {
+    if (document.getElementById('light-force-invert')) return;
+    const selector = 'header, footer, nav, aside, [class*="header"], [class*="nav"], [class*="footer"], [class*="banner"], [class*="topbar"]';
+    const targets = document.querySelectorAll(selector);
+    targets.forEach(el => {
+      if (el.hasAttribute('data-lf-illuminated')) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.width < 100 || rect.height < 20) return;
+      const bg = getEffectiveBackground(el);
+      if (bg && isDarkColor(bg.r, bg.g, bg.b)) {
+        el.setAttribute('data-lf-illuminated', 'true');
+        el.style.filter = 'invert(1) hue-rotate(180deg)';
+        el.querySelectorAll('img, video, canvas, svg, [style*="background-image"]').forEach(media => {
+          media.style.filter = 'invert(1) hue-rotate(180deg)';
+        });
+      }
+    });
+  }
+
   // ─── Main ──────────────────────────────────────────────────────────────────
   function applyLightForce() {
     flipThemeSignals();
@@ -277,7 +307,8 @@
           console.log('[Light Force] Page detected as dark — applying filter inversion');
           applyFilterInversion();
         } else {
-          console.log('[Light Force] Page is light — no inversion needed');
+          console.log('[Light Force] Page is light — checking for dark containers');
+          illuminateSpecificDarkAreas();
         }
       });
     };
@@ -299,6 +330,8 @@
             if (isPageDark()) {
               console.log('[Light Force] Page turned dark dynamically — applying filter inversion');
               applyFilterInversion();
+            } else {
+              illuminateSpecificDarkAreas();
             }
           });
         }

@@ -9,6 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
         onlyDaylight.checked = result.onlyDaylightEnabled === true;
     });
 
+    // Display version
+    const versionEl = document.getElementById('version');
+    if (versionEl && chrome.runtime.getManifest) {
+        versionEl.textContent = 'v' + chrome.runtime.getManifest().version;
+    }
+
     function reloadActiveTab() {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             if (tabs[0]) {
