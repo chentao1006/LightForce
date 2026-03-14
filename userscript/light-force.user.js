@@ -2,7 +2,7 @@
 // @name         Light Force
 // @namespace    https://ct106.com
 // @version      1.3.4
-// @description  May the Light Force be with you. Forces dark-themed websites into light mode, leaving originally light websites unaffected.
+// @description  May the Light Force be with you! Forces dark-themed websites into light mode, leaving originally light websites unaffected.
 // @author       chentao1006
 // @match        *://*/*
 // @grant        GM_getValue
