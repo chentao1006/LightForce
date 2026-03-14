@@ -21,7 +21,7 @@ jobs:
 
       - name: Copy file
         run: |
-          cp light-force.user.js target/light-force.js
+          cp userscript/light-force.user.js target/light-force.js
 
       - name: Commit and push
         run: |
