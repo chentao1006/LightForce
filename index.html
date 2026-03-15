@@ -296,12 +296,11 @@
 
   <header>
     <a href="#" class="logo">
-      <img src="icon-48.png" alt="Light Force Logo">
+      <img src="assets/icon-48.png" alt="Light Force Logo">
       <span data-i18n="logo_title">LIGHT FORCE</span>
     </a>
     <nav>
       <a href="#features" data-i18n="nav_features">Features</a>
-      <a href="privacy.html" target="_blank" data-i18n="nav_privacy">Privacy Policy</a>
       <a href="https://chromewebstore.google.com/detail/light-force/nbccbcgonogecldgcbelcjcnfcadmjcb" target="_blank" style="color: var(--primary); display: flex; align-items: center; gap: 8px;">
         <img src="https://fonts.gstatic.com/s/i/productlogos/chrome_store/v7/192px.svg" width="18" height="18" alt="Chrome">
         <span data-i18n="nav_get_extension">Get Extension</span>
@@ -334,7 +333,7 @@
       <h2 data-i18n="showcase_h2">See the Force in Action</h2>
       <p style="color: var(--text-muted); margin-bottom: 30px;" data-i18n="showcase_p">Instantly toggles standard dark websites into a clean, readable light theme.</p>
       <div class="showcase-container">
-        <img src="promo_1280x800.png" alt="Light Force Before and After Screenshot">
+        <img src="assets/promo_1280x800.png" alt="Light Force Before and After Screenshot">
       </div>
     </section>
 
@@ -355,13 +354,27 @@
         <p data-i18n="feature3_p">Easily ignite or disable the force using our stylized Lightsaber popup toggle. No complex menus, just instant light.</p>
       </div>
     </section>
+
+    <section class="cta-bottom" style="text-align: center; padding: 100px 20px; background: #fff;">
+      <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 32px;" data-i18n="cta_bottom_h2">Ready to Join the Light Side?</h2>
+      <div class="cta-group">
+        <a href="https://chromewebstore.google.com/detail/light-force/nbccbcgonogecldgcbelcjcnfcadmjcb" class="cta-button" target="_blank" style="display: flex; align-items: center; gap: 12px;">
+          <img src="https://fonts.gstatic.com/s/i/productlogos/chrome_store/v7/192px.svg" width="24" height="24" alt="Chrome" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
+          <span data-i18n="hero_cta">Add to Chrome</span>
+        </a>
+        <span style="color: var(--text-muted); font-weight: 500; font-size: 0.9rem;" data-i18n="or">or</span>
+        <a href="https://greasyfork.org/scripts/568876" target="_blank" class="cta-secondary" style="display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          <span data-i18n="hero_cta_sub">Get Userscript</span>
+        </a>
+      </div>
+    </section>
   </main>
 
   <footer>
     <p data-i18n="footer_copy">&copy; 2026 Light Force. May the Light Force be with you.</p>
     <div class="footer-links">
-      <a href="privacy.html" target="_blank" data-i18n="footer_privacy">Privacy Policy</a>
-      <a href="mailto:contact@ct106.com" data-i18n="footer_contact">Contact Support</a>
+      <a href="https://ct106.com" target="_blank" data-i18n="footer_author">Author</a>
     </div>
   </footer>
 
@@ -369,13 +382,13 @@
     const translations = {
       en: {
         nav_features: "Features",
-        nav_privacy: "Privacy Policy",
         nav_get_extension: "Get Extension",
         hero_h1: "May the Light Force Dispel the Darkness",
         hero_p: "A lightweight Chrome extension that slices through dark themes, instantly forcing websites into a clean, readable light mode. Protect your eyes from astigmatism halation and daytime screen glare.",
         hero_cta: "Add to Chrome",
         hero_cta_sub: "Get Userscript",
         or: "or",
+        cta_bottom_h2: "Ready to Join the Light Side?",
         showcase_h2: "See the Force in Action",
         showcase_p: "Instantly toggles standard dark websites into a clean, readable light theme.",
         feature1_h3: "Boost Readability",
@@ -385,14 +398,12 @@
         feature3_h3: "One-Click Switch",
         feature3_p: "Easily ignite or disable the force using our stylized Lightsaber popup toggle. No complex menus, just instant light.",
         footer_copy: "© 2026 Light Force. May the Light Force be with you.",
-        footer_privacy: "Privacy Policy",
-        footer_contact: "Contact Support",
+        footer_author: "Author",
         lang_btn: "中文",
         logo_title: "LIGHT FORCE"
       },
       zh: {
         nav_features: "功能",
-        nav_privacy: "隐私政策",
         nav_get_extension: "获取扩展",
         logo_title: "光明原力",
         hero_h1: "愿光明原力驱散黑暗",
@@ -400,6 +411,7 @@
         hero_cta: "添加至 Chrome",
         hero_cta_sub: "获取用户脚本",
         or: "或",
+        cta_bottom_h2: "准备好加入光明面了吗？",
         showcase_h2: "见证原力觉醒",
         showcase_p: "瞬间将标准的深色网站切换为明亮易读的浅色模式。",
         feature1_h3: "提升阅读体验",
@@ -409,8 +421,7 @@
         feature3_h3: "一键切换",
         feature3_p: "通过设计精美的弹出窗口，瞬间开启或关闭扩展。没有复杂的设置，只有瞬间的光明。",
         footer_copy: "© 2026 光明原力。愿光明原力与你同在。",
-        footer_privacy: "隐私政策",
-        footer_contact: "联系支持",
+        footer_author: "作者主页",
         lang_btn: "English"
       }
     };
