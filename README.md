@@ -1,6 +1,6 @@
 # Light Force
 
-**May the Light Force Drop the Darkness.**
+**May the Light Force Dispel the Darkness.**
 
 **English** | [简体中文](./README_CN.md)
 
