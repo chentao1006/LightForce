@@ -34,13 +34,14 @@ Light Force 是一个轻量、简洁的 Chrome 扩展，旨在实现一个高尚
 4. 点击 **加载已解压的扩展程序** 按钮，选择 `extension` 目录。
 5. 扩展现已安装！别忘了固定它以便快速访问。
 
-### 用户脚本 (Tampermonkey / Violentmonkey)
+### 3. 用户脚本 (Tampermonkey / Violentmonkey)
 
 1. 确保你已安装脚本管理器，如 [Tampermonkey](https://www.tampermonkey.net/) 或 [Violentmonkey](https://violentmonkey.github.io/)。
-2. 打开本仓库中的 [light-force.user.js](./userscript/light-force.user.js) 文件。
-3. 脚本管理器应会自动检测并提示安装。
-4. 如果没有自动提示，请复制 `light-force.user.js` 的全部内容，在脚本管理器面板中新建脚本并粘贴。
-5. 保存脚本，光明原力将伴随你访问所有网站！
+2. [**从 Greasy Fork 安装 (推荐)**](https://greasyfork.org/scripts/568876)
+3. 或者你可以打开本仓库中的 [light-force.user.js](./userscript/light-force.user.js) 文件进行安装。
+4. 脚本管理器应会自动检测并提示安装。
+5. 如果没有自动提示，请复制 `light-force.user.js` 的全部内容，在脚本管理器面板中新建脚本并粘贴。
+6. 保存脚本，光明原力将伴随你访问所有网站！
 
 ## 💻 技术细节
 

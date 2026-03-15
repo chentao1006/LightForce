@@ -34,13 +34,14 @@ Light Force is a lightweight, simple Chrome extension designed with a single, no
 4. Click the **Load unpacked** button and select the `extension` directory within this folder.
 5. The extension is now installed! Don't forget to pin it for easy access.
 
-### Userscript (Tampermonkey / Violentmonkey)
+### 3. Userscript (Tampermonkey / Violentmonkey)
 
 1. Ensure you have a userscript manager like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/) installed.
-2. Open the [light-force.user.js](./userscript/light-force.user.js) file in this repository.
-3. Your userscript manager should automatically detect it and offer to install it.
-4. If not, copy the entire content of `light-force.user.js`, open your userscript manager dashboard, create a new script, and paste the content.
-5. Save the script, and the Light Force will be with you on all websites!
+2. [**Install from Greasy Fork (Recommended)**](https://greasyfork.org/scripts/568876)
+3. Alternatively, open the [light-force.user.js](./userscript/light-force.user.js) file in this repository.
+4. Your userscript manager should automatically detect it and offer to install it.
+5. If not, copy the entire content of `light-force.user.js`, open your userscript manager dashboard, create a new script, and paste the content.
+6. Save the script, and the Light Force will be with you on all websites!
 
 ## 💻 Technical Details
 
