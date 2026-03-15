@@ -23,7 +23,10 @@ Light Force 是一个轻量、简洁的 Chrome 扩展，旨在实现一个高尚
 
 ## 🛠️ 安装方法
 
-### Chrome 扩展程序 (开发者模式)
+### 1. 从 Chrome 应用商店安装 (推荐)
+[**在 Chrome 应用商店获取 Light Force**](https://chromewebstore.google.com/detail/light-force/nbccbcgonogecldgcbelcjcnfcadmjcb)
+
+### 2. Chrome 扩展程序 (开发者模式)
 
 1. 克隆或下载本仓库到本地。
 2. 打开 Google Chrome，导航至 `chrome://extensions/`。

@@ -23,7 +23,10 @@ Light Force is a lightweight, simple Chrome extension designed with a single, no
 
 ## 🛠️ Installation
 
-### Chrome Extension (Developer Mode)
+### 1. Install from Chrome Web Store (Recommended)
+[**Get Light Force on Chrome Web Store**](https://chromewebstore.google.com/detail/light-force/nbccbcgonogecldgcbelcjcnfcadmjcb)
+
+### 2. Chrome Extension (Developer Mode)
 
 1. Clone or download this repository to your local machine.
 2. Open Google Chrome and navigate to `chrome://extensions/`.
