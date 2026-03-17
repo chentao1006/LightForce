@@ -9,7 +9,7 @@
     "message": "Force Light Theme"
   },
   "onlyForDaylight": {
-    "message": "Only in Light Mode"
+    "message": "Only in System Light Mode"
   },
   "darkDetected": {
     "message": "Page detected as dark — applying filter inversion"
@@ -21,6 +21,21 @@
     "message": "Page turned dark dynamically — applying filter inversion"
   },
   "daylightActive": {
-    "message": "\"Only for day light\" is active and system is in dark mode. Skipping."
+    "message": "\"Only in System Light Mode\" is active and system is currently in dark mode. Skipping."
+  },
+  "runMode": {
+    "message": "Run Mode"
+  },
+  "exclusionMode": {
+    "message": "All sites except list"
+  },
+  "inclusionMode": {
+    "message": "Specific sites only"
+  },
+  "addToList": {
+    "message": "Add site to list"
+  },
+  "removeFromList": {
+    "message": "Remove site from list"
   }
 }

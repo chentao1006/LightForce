@@ -5,11 +5,25 @@
 //   Phase 3: If still dark, apply universal CSS filter inversion (the nuclear option)
 //   Phase 4: Even if page is light, find and illuminate specific dark areas (banners, footers)
 
-chrome.storage.sync.get(['lightForceEnabled', 'onlyDaylightEnabled'], (result) => {
+chrome.storage.sync.get(['lightForceEnabled', 'onlyDaylightEnabled', 'runMode', 'siteList'], (result) => {
   const isEnabled = result.lightForceEnabled !== false;
   const isOnlyDaylight = result.onlyDaylightEnabled === true;
+  const runMode = result.runMode || 'exclusion';
+  const siteList = result.siteList || [];
+  const hostname = window.location.hostname;
 
   if (isEnabled) {
+    // Check if site is allowed based on mode and list
+    const isInList = siteList.includes(hostname);
+    if (runMode === 'exclusion' && isInList) {
+      console.log(`[Light Force] Site is in exclusion list. Skipping.`);
+      return;
+    }
+    if (runMode === 'inclusion' && !isInList) {
+      console.log(`[Light Force] Site is not in inclusion list. Skipping.`);
+      return;
+    }
+
     if (isOnlyDaylight && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       console.log(`[Light Force] ${chrome.i18n.getMessage('daylightActive')}`);
       return;

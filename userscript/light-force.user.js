@@ -2,7 +2,7 @@
 // @name         Light Force
 // @name:zh      Light Force (光明原力)
 // @namespace    https://ct106.com
-// @version      1.3.5
+// @version      1.3.6
 // @description  May the Light Force be with you! Forces dark-themed websites into light mode, leaving originally light websites unaffected.
 // @description:zh 愿光明原力与你同在！将深色模式网站强制转为浅色模式，不影响原生浅色网站。
 // @author       chentao1006
@@ -33,7 +33,14 @@
       darkDetected: '探测到深色页面 — 应用滤镜反转',
       lightDetected: '页面为浅色 — 检查深色容器',
       dynamicDark: '页面动态变为深色 — 应用滤镜反转',
-      daylightActive: '已开启“仅当系统浅色”，且系统当前处于深色模式。跳过。'
+      daylightActive: '已开启“仅当系统浅色”，且系统当前处于深色模式。跳过。',
+      runMode: '生效范围',
+      exclusionMode: '除名单外所有网站',
+      inclusionMode: '仅名单内网站',
+      addToList: '将当前网站加入名单',
+      removeFromList: '从名单中移除当前网站',
+      siteInList: '当前网站已在名单中',
+      siteNotInList: '当前网站不在名单中'
     },
     en: {
       enabled: 'Enabled',
@@ -42,21 +49,31 @@
       no: 'No',
       enableForce: 'Enable Light Force',
       disableForce: 'Disable Light Force',
-      enableDaylight: 'Enable Only in Light Mode',
-      disableDaylight: 'Disable Only in Light Mode',
+      enableDaylight: 'Enable Only in System Light Mode',
+      disableDaylight: 'Disable Only in System Light Mode',
       status: 'Status',
-      onlyDaylight: 'Only in Light Mode',
+      onlyDaylight: 'Only in System Light Mode',
       darkDetected: 'Page detected as dark — applying filter inversion',
       lightDetected: 'Page is light — checking for dark containers',
       dynamicDark: 'Page turned dark dynamically — applying filter inversion',
-      daylightActive: '"Only in Light Mode" is active and system is currently in Dark Mode. Skipping.'
+      daylightActive: '"Only in System Light Mode" is active and system is currently in Dark Mode. Skipping.',
+      runMode: 'Run Mode',
+      exclusionMode: 'All sites except list',
+      inclusionMode: 'Specific sites only',
+      addToList: 'Add site to list',
+      removeFromList: 'Remove site from list',
+      siteInList: 'Current site is in list',
+      siteNotInList: 'Current site is not in list'
     }
   }[lang];
 
   let isEnabled = GM_getValue('lightForceEnabled', true);
   let isOnlyDaylight = GM_getValue('onlyDaylightEnabled', false);
+  let runMode = GM_getValue('runMode', 'exclusion');
+  let siteList = GM_getValue('siteList', []);
+  const hostname = window.location.hostname;
 
-  console.log(`[Light Force] ${i18n.status}:`, isEnabled ? i18n.enabled : i18n.disabled, `| ${i18n.onlyDaylight}:`, isOnlyDaylight ? i18n.yes : i18n.no);
+  console.log(`[Light Force] ${i18n.status}:`, isEnabled ? i18n.enabled : i18n.disabled, `| ${i18n.onlyDaylight}:`, isOnlyDaylight ? i18n.yes : i18n.no, `| ${i18n.runMode}:`, runMode === 'exclusion' ? i18n.exclusionMode : i18n.inclusionMode);
 
   GM_registerMenuCommand(isEnabled ? i18n.disableForce : i18n.enableForce, () => {
     GM_setValue('lightForceEnabled', !isEnabled);
@@ -68,7 +85,33 @@
     location.reload();
   });
 
+  GM_registerMenuCommand(`${i18n.runMode}: ${runMode === 'exclusion' ? i18n.exclusionMode : i18n.inclusionMode}`, () => {
+    GM_setValue('runMode', runMode === 'exclusion' ? 'inclusion' : 'exclusion');
+    location.reload();
+  });
+
+  const isInList = siteList.includes(hostname);
+  GM_registerMenuCommand(isInList ? i18n.removeFromList : i18n.addToList, () => {
+    let newList = [...siteList];
+    if (isInList) {
+      newList = newList.filter(s => s !== hostname);
+    } else {
+      newList.push(hostname);
+    }
+    GM_setValue('siteList', newList);
+    location.reload();
+  });
+
   if (isEnabled) {
+    if (runMode === 'exclusion' && isInList) {
+      console.log(`[Light Force] ${i18n.siteInList}. Skipping.`);
+      return;
+    }
+    if (runMode === 'inclusion' && !isInList) {
+      console.log(`[Light Force] ${i18n.siteNotInList}. Skipping.`);
+      return;
+    }
+
     if (isOnlyDaylight && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       console.log(`[Light Force] ${i18n.daylightActive}`);
       return;

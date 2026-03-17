@@ -100,3 +100,55 @@ input:checked+.slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+
+.divider {
+  height: 1px;
+  background: #eee;
+  margin: 15px 0;
+}
+
+.content.column {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.select-mode {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background-color: #fcfcfc;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+
+.select-mode:focus {
+  border-color: #007bff;
+}
+
+.site-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: #007bff;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.site-btn:hover {
+  background-color: #0056b3;
+}
+
+.site-btn.remove {
+  background-color: #dc3545;
+}
+
+.site-btn.remove:hover {
+  background-color: #bd2130;
+}

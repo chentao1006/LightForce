@@ -28,6 +28,17 @@
             <span class="slider round"></span>
         </label>
     </div>
+    <div class="divider"></div>
+    <div class="content column">
+        <label for="runMode" data-i18n="runMode">Run Mode</label>
+        <select id="runMode" class="select-mode">
+            <option value="exclusion" data-i18n="exclusionMode">All sites except list</option>
+            <option value="inclusion" data-i18n="inclusionMode">Specific sites only</option>
+        </select>
+    </div>
+    <div class="content">
+        <button id="toggleSite" class="site-btn"></button>
+    </div>
     <script src="popup.js"></script>
 </body>
 

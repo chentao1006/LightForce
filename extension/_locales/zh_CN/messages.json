@@ -22,5 +22,20 @@
   },
   "daylightActive": {
     "message": "“仅当系统浅色”已激活且系统当前处于深色模式。跳过。"
+  },
+  "runMode": {
+    "message": "生效范围"
+  },
+  "exclusionMode": {
+    "message": "除名单外所有网站"
+  },
+  "inclusionMode": {
+    "message": "仅名单内网站"
+  },
+  "addToList": {
+    "message": "将当前网站加入名单"
+  },
+  "removeFromList": {
+    "message": "从名单中移除当前网站"
   }
 }
