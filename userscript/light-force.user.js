@@ -2,7 +2,7 @@
 // @name         Light Force
 // @name:zh      Light Force (光明原力)
 // @namespace    https://ct106.com
-// @version      1.3.6
+// @version      1.3.7
 // @description  May the Light Force be with you! Forces dark-themed websites into light mode, leaving originally light websites unaffected.
 // @description:zh 愿光明原力与你同在！将深色模式网站强制转为浅色模式，不影响原生浅色网站。
 // @author       chentao1006
@@ -182,14 +182,33 @@
     // Strategy 1: html and body
     for (const el of [document.documentElement, document.body]) {
       if (!el) continue;
+
+      // --- NEW: Check for explicit color-scheme property ---
+      const style = window.getComputedStyle(el);
+      if (style.colorScheme === 'dark') return true;
+
       const bg = getEffectiveBackground(el);
       if (!bg) continue;
 
       // --- NEW: Definitive Light Signal ---
       if (isLightColor(bg.r, bg.g, bg.b)) return false;
 
-      if (isDarkColor(bg.r, bg.g, bg.b) && !isTextDark(el)) return true;
+      // --- NEW: Relaxed explicit check for body/html ---
+      if (isDarkColor(bg.r, bg.g, bg.b)) {
+        const luminance = getLuminance(bg.r, bg.g, bg.b);
+        if (luminance < 0.05 && !isTextDark(el)) return true;
+        if (!isTextDark(el)) return true;
+      }
     }
+
+    // Strategy 1.5: Check meta tags
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeColorMeta) {
+      const content = themeColorMeta.getAttribute('content');
+      if (content && content.toLowerCase() === '#000000') return true;
+    }
+    const statusBarStyle = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+    if (statusBarStyle && statusBarStyle.getAttribute('content') === 'black') return true;
 
     // Strategy 2: Sample first-level children
     if (document.body) {
@@ -424,7 +443,7 @@
 
     if (document.documentElement) {
       observer.observe(document.documentElement, {
-        attributes: true, childList: true, subtree: false,
+        attributes: true, childList: true, subtree: true, // Improved SPA support
         attributeFilter: ['class', 'theme', 'data-theme', 'data-color-mode', 'style', 'data-bs-theme']
       });
     }

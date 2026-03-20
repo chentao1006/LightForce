@@ -126,20 +126,38 @@ function isPageDark() {
   const targets = [document.documentElement, document.body];
   for (const el of targets) {
     if (!el) continue;
+
+    // --- NEW: Check for explicit color-scheme property ---
+    const style = window.getComputedStyle(el);
+    if (style.colorScheme === 'dark') return true;
+
     const bg = getEffectiveBackground(el);
     if (!bg) continue;
 
     // --- NEW: Definitive Light Signal ---
-    // If body/html is explicitly light, we trust it over individual element sampling.
     if (isLightColor(bg.r, bg.g, bg.b)) {
       return false;
     }
 
-    // If background is dark, verify the text isn't also dark (false positive check)
-    if (isDarkColor(bg.r, bg.g, bg.b) && !isTextDark(el)) {
-      return true;
+    // --- NEW: Relaxed explicit check for body/html ---
+    // If the background is extremely dark (almost black), trust it more.
+    if (isDarkColor(bg.r, bg.g, bg.b)) {
+      const luminance = getLuminance(bg.r, bg.g, bg.b);
+      // If it's near-black (luminance < 0.05) and text is not ALSO near-black OR text is light
+      if (luminance < 0.05 && !isTextDark(el)) return true;
+      // Original condition
+      if (!isTextDark(el)) return true;
     }
   }
+
+  // Strategy 1.5: Check meta tags for dark-mode signals
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeColorMeta) {
+    const content = themeColorMeta.getAttribute('content');
+    if (content && content.toLowerCase() === '#000000') return true;
+  }
+  const statusBarStyle = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+  if (statusBarStyle && statusBarStyle.getAttribute('content') === 'black') return true;
 
   // Strategy 2: Sample first-level children of body
   if (document.body) {
@@ -516,7 +534,7 @@ function applyLightForce() {
     observer.observe(document.documentElement, {
       attributes: true,
       childList: true,
-      subtree: false,
+      subtree: true, // Improved SPA support (keep an eye on performance)
       attributeFilter: ['class', 'theme', 'data-theme', 'data-color-mode', 'style', 'data-bs-theme']
     });
   }
