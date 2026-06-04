@@ -1,10 +1,10 @@
 function updateBadge(isEnabled) {
   if (isEnabled) {
-    chrome.action.setBadgeText({ text: 'ON' });
-    chrome.action.setBadgeBackgroundColor({ color: '#007bff' }); // Lightsaber Blue
-    chrome.action.setBadgeTextColor({ color: '#ffffff' }); // White text
-  } else {
     chrome.action.setBadgeText({ text: '' });
+  } else {
+    chrome.action.setBadgeText({ text: 'OFF' });
+    chrome.action.setBadgeBackgroundColor({ color: '#555555' }); // Dark Gray
+    chrome.action.setBadgeTextColor({ color: '#ffffff' }); // White text
   }
 }
 
