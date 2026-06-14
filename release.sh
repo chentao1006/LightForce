@@ -47,7 +47,7 @@ git add .
 git commit -m "chore: release v$NEW_VERSION" || echo "No changes to commit."
 
 echo "🏷️  Tagging v$NEW_VERSION..."
-git tag "v$NEW_VERSION" || echo "Tag v$NEW_VERSION already exists."
+git tag -m "Release v$NEW_VERSION" "v$NEW_VERSION" || echo "Tag v$NEW_VERSION already exists."
 
 echo "⬆️  Pushing commits and tags to remote..."
 git push
