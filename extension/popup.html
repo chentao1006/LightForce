@@ -14,30 +14,44 @@
             <div id="version" class="version"></div>
         </div>
     </div>
-    <div class="content">
-        <span data-i18n="forceLightTheme">Force Light Theme</span>
-        <label class="switch">
-            <input type="checkbox" id="toggleSwitch">
-            <span class="slider round"></span>
-        </label>
+    <div id="activeBanner" class="active-banner hidden">
+        <span class="banner-icon">✨</span>
+        <span data-i18n="activeBannerText">Active on this page</span>
     </div>
-    <div class="content">
-        <span data-i18n="onlyForDaylight">Only in Light Mode</span>
-        <label class="switch">
-            <input type="checkbox" id="onlyDaylight">
-            <span class="slider round"></span>
-        </label>
+    <div class="content column">
+        <div class="setting-row">
+            <span data-i18n="forceLightTheme">Force Light Theme</span>
+            <label class="switch">
+                <input type="checkbox" id="toggleSwitch">
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <div class="setting-row">
+            <span data-i18n="onlyForDaylight">Only in Light Mode</span>
+            <label class="switch">
+                <input type="checkbox" id="onlyDaylight">
+                <span class="slider round"></span>
+            </label>
+        </div>
     </div>
-    <div class="divider"></div>
     <div class="content column">
         <label for="runMode" data-i18n="runMode">Run Mode</label>
         <select id="runMode" class="select-mode">
-            <option value="exclusion" data-i18n="exclusionMode">All sites except list</option>
             <option value="inclusion" data-i18n="inclusionMode">Specific sites only</option>
+            <option value="exclusion" data-i18n="exclusionMode">All sites except list</option>
         </select>
-    </div>
-    <div class="content">
         <button id="toggleSite" class="site-btn"></button>
+        <button id="manageSitesBtn" class="site-btn secondary"><span data-i18n="manageSites">Manage Sites</span> <span
+                id="manageSitesArrow" class="arrow-icon">▼</span></button>
+    </div>
+    <div id="siteManager" class="site-manager hidden">
+        <div class="add-site-container">
+            <input type="text" id="newSiteInput" data-i18n-placeholder="enterSiteDomain"
+                placeholder="Enter domain (e.g. example.com)">
+            <button id="addSiteBtn" class="add-btn" data-i18n="addSite">Add</button>
+        </div>
+        <div id="siteListContainer" class="site-list">
+        </div>
     </div>
     <script src="popup.js"></script>
 </body>

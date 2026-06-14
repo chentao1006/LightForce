@@ -1,5 +1,5 @@
 body {
-  width: 220px;
+  width: 280px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   margin: 0;
   padding: 15px;
@@ -113,6 +113,13 @@ input:checked+.slider:before {
   gap: 10px;
 }
 
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 .select-mode {
   width: 100%;
   padding: 8px;
@@ -151,4 +158,148 @@ input:checked+.slider:before {
 
 .site-btn.remove:hover {
   background-color: #bd2130;
+}
+
+.site-btn.secondary {
+  background-color: #6c757d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.site-btn.secondary:hover {
+  background-color: #5a6268;
+}
+
+.arrow-icon {
+  font-size: 10px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.arrow-icon.up {
+  transform: rotate(180deg);
+}
+
+.active-banner {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #c3e6cb;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.site-manager {
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-bottom: 12px;
+}
+
+.add-site-container {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.add-site-container input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+
+.add-site-container input:focus {
+  border-color: #007bff;
+}
+
+.add-btn {
+  padding: 8px 12px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.add-btn:hover {
+  background-color: #218838;
+}
+
+.site-list {
+  max-height: 150px;
+  overflow-y: auto;
+  border-top: 1px solid #eee;
+  padding-top: 8px;
+}
+
+.site-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.site-item:last-child {
+  border-bottom: none;
+}
+
+.site-item-domain {
+  word-break: break-all;
+  margin-right: 8px;
+}
+
+.site-item-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.edit-btn {
+  color: #007bff;
+}
+
+.edit-btn:hover {
+  background-color: #e6f2ff;
+}
+
+.delete-btn {
+  color: #dc3545;
+}
+
+.delete-btn:hover {
+  background-color: #fde8e9;
+}
+
+.empty-list-msg {
+  color: #999;
+  font-size: 12px;
+  text-align: center;
+  padding: 10px 0;
 }

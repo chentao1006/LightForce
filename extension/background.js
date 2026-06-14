@@ -36,3 +36,11 @@ chrome.storage.sync.get(['lightForceEnabled'], (result) => {
   const isEnabled = result.lightForceEnabled !== false;
   updateBadge(isEnabled);
 });
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'setBadgeOn' && sender.tab && sender.tab.id) {
+    chrome.action.setBadgeText({ text: 'ON', tabId: sender.tab.id });
+    chrome.action.setBadgeBackgroundColor({ color: '#007bff', tabId: sender.tab.id });
+    chrome.action.setBadgeTextColor({ color: '#ffffff', tabId: sender.tab.id });
+  }
+});

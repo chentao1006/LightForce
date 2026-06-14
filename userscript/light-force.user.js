@@ -24,23 +24,25 @@
       disabled: '已禁用',
       yes: '是',
       no: '否',
-      enableForce: '启用 强制网页浅色',
-      disableForce: '禁用 强制网页浅色',
-      enableDaylight: '启用 仅当系统浅色',
-      disableDaylight: '禁用 仅当系统浅色',
+      enableForce: '启用 强制浅色模式',
+      disableForce: '禁用 强制浅色模式',
+      enableDaylight: '启用 仅系统浅色时生效',
+      disableDaylight: '禁用 仅系统浅色时生效',
       status: '状态',
-      onlyDaylight: '仅当系统浅色',
+      onlyDaylight: '仅系统浅色时生效',
       darkDetected: '探测到深色页面 — 应用滤镜反转',
       lightDetected: '页面为浅色 — 检查深色容器',
       dynamicDark: '页面动态变为深色 — 应用滤镜反转',
-      daylightActive: '已开启“仅当系统浅色”，且系统当前处于深色模式。跳过。',
+      daylightActive: '已开启“仅系统浅色时生效”，且当前系统为深色。跳过。',
       runMode: '生效范围',
-      exclusionMode: '除名单外所有网站',
-      inclusionMode: '仅名单内网站',
-      addToList: '将当前网站加入名单',
-      removeFromList: '从名单中移除当前网站',
-      siteInList: '当前网站已在名单中',
-      siteNotInList: '当前网站不在名单中'
+      exclusionMode: '除列表外所有网站',
+      inclusionMode: '仅列表内网站',
+      addToList: '将当前网站加入列表',
+      removeFromList: '从列表中移除当前网站',
+      siteInList: '当前网站已在列表中',
+      siteNotInList: '当前网站不在列表中',
+      manageSiteList: '管理网站列表',
+      manageSiteListPrompt: '请输入生效网站的域名列表（以英文逗号分隔）：'
     },
     en: {
       enabled: 'Enabled',
@@ -63,13 +65,15 @@
       addToList: 'Add site to list',
       removeFromList: 'Remove site from list',
       siteInList: 'Current site is in list',
-      siteNotInList: 'Current site is not in list'
+      siteNotInList: 'Current site is not in list',
+      manageSiteList: 'Manage Site List',
+      manageSiteListPrompt: 'Enter the list of domains (comma separated):'
     }
   }[lang];
 
   let isEnabled = GM_getValue('lightForceEnabled', true);
   let isOnlyDaylight = GM_getValue('onlyDaylightEnabled', false);
-  let runMode = GM_getValue('runMode', 'exclusion');
+  let runMode = GM_getValue('runMode', 'inclusion');
   let siteList = GM_getValue('siteList', []);
   const hostname = window.location.hostname;
 
@@ -90,16 +94,26 @@
     location.reload();
   });
 
-  const isInList = siteList.includes(hostname);
+  const match = siteList.find(site => hostname === site || hostname.endsWith('.' + site));
+  const isInList = !!match;
   GM_registerMenuCommand(isInList ? i18n.removeFromList : i18n.addToList, () => {
     let newList = [...siteList];
-    if (isInList) {
-      newList = newList.filter(s => s !== hostname);
+    if (match) {
+      newList = newList.filter(s => s !== match);
     } else {
       newList.push(hostname);
     }
     GM_setValue('siteList', newList);
     location.reload();
+  });
+
+  GM_registerMenuCommand(i18n.manageSiteList, () => {
+    const input = prompt(i18n.manageSiteListPrompt, siteList.join(', '));
+    if (input !== null) {
+      const newList = input.split(',').map(s => s.trim()).filter(Boolean);
+      GM_setValue('siteList', newList);
+      location.reload();
+    }
   });
 
   if (isEnabled) {

@@ -6,10 +6,10 @@
     "message": "愿光明原力与你同在！将深色模式网站强制转为浅色模式，不影响原生浅色网站。"
   },
   "forceLightTheme": {
-    "message": "强制网页浅色"
+    "message": "强制浅色模式"
   },
   "onlyForDaylight": {
-    "message": "仅当系统浅色"
+    "message": "仅系统浅色时生效"
   },
   "darkDetected": {
     "message": "探测到深色页面 — 应用滤镜反转"
@@ -21,21 +21,48 @@
     "message": "页面动态变为深色 — 应用滤镜反转"
   },
   "daylightActive": {
-    "message": "“仅当系统浅色”已激活且系统当前处于深色模式。跳过。"
+    "message": "已开启“仅系统浅色时生效”且当前系统为深色。跳过。"
   },
   "runMode": {
     "message": "生效范围"
   },
   "exclusionMode": {
-    "message": "除名单外所有网站"
+    "message": "除列表外所有网站"
   },
   "inclusionMode": {
-    "message": "仅名单内网站"
+    "message": "仅列表内网站"
   },
   "addToList": {
-    "message": "将当前网站加入名单"
+    "message": "将当前网站加入列表"
   },
   "removeFromList": {
-    "message": "从名单中移除当前网站"
+    "message": "从列表中移除当前网站"
+  },
+  "manageSites": {
+    "message": "管理网站列表"
+  },
+  "addSite": {
+    "message": "添加"
+  },
+  "editSite": {
+    "message": "编辑"
+  },
+  "deleteSite": {
+    "message": "删除"
+  },
+  "enterSiteDomain": {
+    "message": "输入域名 (如 example.com)"
+  },
+  "emptyList": {
+    "message": "列表为空"
+  },
+  "cancel": {
+    "message": "取消"
+  },
+  "save": {
+    "message": "保存"
+  },
+  "activeBannerText": {
+    "message": "光明原力已在此页面生效"
   }
 }

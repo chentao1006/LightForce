@@ -37,5 +37,32 @@
   },
   "removeFromList": {
     "message": "Remove site from list"
+  },
+  "manageSites": {
+    "message": "Manage Sites"
+  },
+  "addSite": {
+    "message": "Add"
+  },
+  "editSite": {
+    "message": "Edit"
+  },
+  "deleteSite": {
+    "message": "Delete"
+  },
+  "enterSiteDomain": {
+    "message": "Enter domain (e.g. example.com)"
+  },
+  "emptyList": {
+    "message": "List is empty"
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
+  "save": {
+    "message": "Save"
+  },
+  "activeBannerText": {
+    "message": "Active on this page"
   }
 }
