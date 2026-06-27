@@ -2,7 +2,7 @@
 // @name         Light Force
 // @name:zh      Light Force (光明原力)
 // @namespace    https://ct106.com
-// @version      1.3.7
+// @version      1.4.0
 // @description  May the Light Force be with you! Forces dark-themed websites into light mode, leaving originally light websites unaffected.
 // @description:zh 愿光明原力与你同在！将深色模式网站强制转为浅色模式，不影响原生浅色网站。
 // @author       chentao1006

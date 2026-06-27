@@ -64,5 +64,17 @@
   },
   "activeBannerText": {
     "message": "光明原力已在此页面生效"
+  },
+  "maintenanceNoticeTitle": {
+    "message": "Light Force 已不再维护"
+  },
+  "maintenanceNoticeMessage": {
+    "message": "请安装 Dark Light。它完整包含本插件功能，并提供更多功能。"
+  },
+  "maintenanceNoticeInstall": {
+    "message": "安装 Dark Light"
+  },
+  "maintenanceNoticeDismiss": {
+    "message": "知道了"
   }
 }

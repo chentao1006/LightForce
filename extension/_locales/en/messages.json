@@ -64,5 +64,17 @@
   },
   "activeBannerText": {
     "message": "Active on this page"
+  },
+  "maintenanceNoticeTitle": {
+    "message": "Light Force is no longer maintained"
+  },
+  "maintenanceNoticeMessage": {
+    "message": "Please install Dark Light instead. It fully includes this extension's features and offers more capabilities."
+  },
+  "maintenanceNoticeInstall": {
+    "message": "Install Dark Light"
+  },
+  "maintenanceNoticeDismiss": {
+    "message": "Got it"
   }
 }

@@ -22,6 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const addSiteBtn = document.getElementById('addSiteBtn');
     const siteListContainer = document.getElementById('siteListContainer');
 
+    const installDarkLight = document.getElementById('installDarkLight');
+    const MAINTENANCE_NOTICE_DISMISSED_KEY = 'darkLightMigrationNoticeDismissed';
+
+    if (installDarkLight) {
+        installDarkLight.addEventListener('click', () => {
+            chrome.storage.local.set({ [MAINTENANCE_NOTICE_DISMISSED_KEY]: true });
+        });
+    }
+
     let currentHostname = '';
     let siteList = [];
 

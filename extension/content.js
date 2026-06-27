@@ -5,6 +5,11 @@
 //   Phase 3: If still dark, apply universal CSS filter inversion (the nuclear option)
 //   Phase 4: Even if page is light, find and illuminate specific dark areas (banners, footers)
 
+const DARK_LIGHT_EXTENSION_URL = 'https://chromewebstore.google.com/detail/dark-light/jmckaadolajjpcmlciacmdenlfkolnhf';
+const MAINTENANCE_NOTICE_DISMISSED_KEY = 'darkLightMigrationNoticeDismissed';
+
+showMaintenanceNotice();
+
 chrome.storage.sync.get(['lightForceEnabled', 'onlyDaylightEnabled', 'runMode', 'siteList'], (result) => {
   const isEnabled = result.lightForceEnabled !== false;
   const isOnlyDaylight = result.onlyDaylightEnabled === true;
@@ -39,6 +44,199 @@ chrome.storage.sync.get(['lightForceEnabled', 'onlyDaylightEnabled', 'runMode', 
     applyLightForce();
   }
 });
+
+function getMessage(key, fallback) {
+  const message = chrome.i18n.getMessage(key);
+  return message || fallback;
+}
+
+function showMaintenanceNotice() {
+  if (window.top !== window) return;
+
+  try {
+    chrome.storage.local.get([MAINTENANCE_NOTICE_DISMISSED_KEY], (result) => {
+      if (chrome.runtime.lastError || result[MAINTENANCE_NOTICE_DISMISSED_KEY]) return;
+      renderMaintenanceNotice();
+    });
+  } catch (e) {
+    // Ignore pages where the extension context is unavailable.
+  }
+}
+
+function dismissMaintenanceNotice(container) {
+  try {
+    chrome.storage.local.set({ [MAINTENANCE_NOTICE_DISMISSED_KEY]: true });
+  } catch (e) {
+    // Ignore storage failures; removing the notice still keeps the page usable.
+  }
+  container.remove();
+}
+
+function renderMaintenanceNotice() {
+  const existingNotice = document.getElementById('light-force-maintenance-notice');
+  if (existingNotice) return;
+
+  const container = document.createElement('div');
+  container.id = 'light-force-maintenance-notice';
+  const shadow = container.attachShadow({ mode: 'closed' });
+
+  const style = document.createElement('style');
+  style.textContent = `
+    :host {
+      all: initial;
+      display: block;
+      position: fixed;
+      z-index: 2147483647;
+      inset: 20px 20px auto auto;
+      max-width: min(380px, calc(100vw - 32px));
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #172033;
+    }
+
+    .notice {
+      box-sizing: border-box;
+      width: 100%;
+      border: 1px solid rgba(23, 32, 51, 0.14);
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 18px 48px rgba(23, 32, 51, 0.22);
+      padding: 16px;
+      line-height: 1.45;
+    }
+
+    .title-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .notice-logo {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      color: #101828;
+    }
+
+    .message {
+      margin: 0 0 14px;
+      font-size: 13px;
+      color: #344054;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    a,
+    button {
+      box-sizing: border-box;
+      border-radius: 8px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    a {
+      border: 1px solid #1d4ed8;
+      background: #1d4ed8;
+      color: #ffffff;
+      padding: 10px 12px;
+    }
+
+    button {
+      border: 1px solid #d0d5dd;
+      background: #ffffff;
+      color: #344054;
+      padding: 9px 11px;
+    }
+
+    @media (max-width: 520px) {
+      :host {
+        inset: 12px 12px auto 12px;
+        max-width: none;
+      }
+
+      .actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      a,
+      button {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  `;
+
+  const notice = document.createElement('aside');
+  notice.className = 'notice';
+  notice.setAttribute('role', 'dialog');
+  notice.setAttribute('aria-live', 'polite');
+  notice.setAttribute('aria-label', getMessage('maintenanceNoticeTitle', 'Light Force is no longer maintained'));
+
+  const titleContainer = document.createElement('div');
+  titleContainer.className = 'title-container';
+
+  const logoImg = document.createElement('img');
+  logoImg.src = chrome.runtime.getURL('icons/icon-48.png');
+  logoImg.alt = 'Light Force Logo';
+  logoImg.className = 'notice-logo';
+
+  const title = document.createElement('p');
+  title.className = 'title';
+  title.textContent = getMessage('maintenanceNoticeTitle', 'Light Force is no longer maintained');
+
+  titleContainer.appendChild(logoImg);
+  titleContainer.appendChild(title);
+
+  const message = document.createElement('p');
+  message.className = 'message';
+  message.textContent = getMessage(
+    'maintenanceNoticeMessage',
+    'Please install Dark Light instead. It fully includes this extension\'s features and offers more capabilities.'
+  );
+
+  const actions = document.createElement('div');
+  actions.className = 'actions';
+
+  const dismissButton = document.createElement('button');
+  dismissButton.type = 'button';
+  dismissButton.textContent = getMessage('maintenanceNoticeDismiss', 'Got it');
+  dismissButton.addEventListener('click', () => dismissMaintenanceNotice(container));
+
+  const installLink = document.createElement('a');
+  installLink.href = DARK_LIGHT_EXTENSION_URL;
+  installLink.target = '_blank';
+  installLink.rel = 'noopener noreferrer';
+  installLink.textContent = getMessage('maintenanceNoticeInstall', 'Install Dark Light');
+  installLink.addEventListener('click', () => dismissMaintenanceNotice(container));
+
+  actions.appendChild(dismissButton);
+  actions.appendChild(installLink);
+  notice.appendChild(titleContainer);
+  notice.appendChild(message);
+  notice.appendChild(actions);
+  shadow.appendChild(style);
+  shadow.appendChild(notice);
+
+  const parent = document.body || document.documentElement;
+  parent.appendChild(container);
+}
 
 // ─── Utility: Calculate relative luminance (WCAG formula) ─────────────────────
 function getLuminance(r, g, b) {
